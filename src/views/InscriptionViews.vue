@@ -123,7 +123,7 @@ export default {
 
       try {
         // Appel Axios vers ton API Laravel
-        const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/inscription`, this.form);
+        const response = await axios.post(`${process.env.VUE_APP_API_URL}/api/inscription`, this.form);
 
         console.log("Succès :", response.data);
         alert("Inscription réussie !");

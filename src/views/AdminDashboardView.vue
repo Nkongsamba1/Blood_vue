@@ -24,7 +24,7 @@
 
         <router-link to="/AdminProfil" v-if="admin" class="flex items-center gap-4 bg-slate-50 p-2 pr-6 rounded-2xl hover:bg-[#111] transition-all group">
           <div class="w-12 h-12 bg-[#111] rounded-xl overflow-hidden border-2 border-white">
-            <img v-if="admin.photo" :src="`${import.meta.env.VITE_API_URL}/storage/${admin.photo}`" class="w-full h-full object-cover">
+            <img v-if="admin.photo" :src="`${process.env.VUE_APP_API_URL}/storage/${admin.photo}`" class="w-full h-full object-cover">
             <span v-else class="text-white flex items-center justify-center h-full font-black">{{ admin.nom_complet?.charAt(0) }}</span>
           </div>
           <div class="hidden sm:block">
@@ -115,9 +115,9 @@ const fetchData = async () => {
     const config = { headers: { Authorization: `Bearer ${token}` } };
 
     const [resStats, resStocks, resUser] = await Promise.all([
-      axios.get(`${import.meta.env.VITE_API_URL}/api/admin/stats-globales`, config),
-      axios.get(`${import.meta.env.VITE_API_URL}/api/admin/stocks`, config),
-      axios.get(`${import.meta.env.VITE_API_URL}/api/user-profile`, config)
+      axios.get(`${process.env.VUE_APP_API_URL}/api/admin/stats-globales`, config),
+      axios.get(`${process.env.VUE_APP_API_URL}/api/admin/stocks`, config),
+      axios.get(`${process.env.VUE_APP_API_URL}/api/user-profile`, config)
     ]);
 
     stats.value = resStats.data;

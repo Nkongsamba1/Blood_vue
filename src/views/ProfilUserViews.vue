@@ -117,7 +117,7 @@ const passwords = reactive({ old_password: '', new_password: '' });
 const fetchProfil = async () => {
   try {
     const token = localStorage.getItem('token');
-    const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/donneur/profil`, {
+    const response = await axios.get(`${process.env.VUE_APP_API_URL}/api/donneur/profil`, {
       headers: { Authorization: `Bearer ${token}` }
     });
     profileData.value = response.data;
@@ -132,7 +132,7 @@ const fetchProfil = async () => {
 const handleUpdateProfil = async () => {
   try {
     const token = localStorage.getItem('token');
-    const response = await axios.put('${import.meta.env.VITE_API_URL}/api/donneur/profil/update', profileData.value, {
+    const response = await axios.put('${process.env.VUE_APP_API_URL}/api/donneur/profil/update', profileData.value, {
       headers: { Authorization: `Bearer ${token}` }
     });
 
@@ -164,7 +164,7 @@ const handleImageUpload = async (event) => {
 
   try {
     const token = localStorage.getItem('token');
-    const response = await axios.post('${import.meta.env.VITE_API_URL}/api/donneur/profil/photo', formData, {
+    const response = await axios.post('${process.env.VUE_APP_API_URL}/api/donneur/profil/photo', formData, {
       headers: { 
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'multipart/form-data' 
@@ -191,7 +191,7 @@ const handleImageUpload = async (event) => {
 const handleUpdatePassword = async () => {
   try {
     const token = localStorage.getItem('token');
-    await axios.put('${import.meta.env.VITE_API_URL}/api/donneur/password/update', passwords, {
+    await axios.put('${process.env.VUE_APP_API_URL}/api/donneur/password/update', passwords, {
       headers: { Authorization: `Bearer ${token}` }
     });
     alert("Mot de passe mis à jour !");

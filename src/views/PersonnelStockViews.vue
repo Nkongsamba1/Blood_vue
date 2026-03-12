@@ -130,7 +130,7 @@ const joursLabels = ref([]);
 const isLoading = ref(true); // État de chargement initialisé à true
 
 const api = axios.create({
-  baseURL: `${import.meta.env.VITE_API_URL}/api`,
+  baseURL: `${process.env.VUE_APP_API_URL}/api`,
   headers: { 
     Authorization: `Bearer ${localStorage.getItem('token')}`,
     'Accept': 'application/json'

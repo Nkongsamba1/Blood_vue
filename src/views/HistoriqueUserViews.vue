@@ -85,7 +85,7 @@ const loading = ref(true)
 const fetchHistory = async () => {
   try {
     const token = localStorage.getItem('token')
-    const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/donneur/historique`, {
+    const res = await axios.get(`${process.env.VUE_APP_API_URL}/api/donneur/historique`, {
       headers: { Authorization: `Bearer ${token}` }
     })
     dons.value = res.data
@@ -108,7 +108,7 @@ const confirmDelete = async (id) => {
   if (result.isConfirmed) {
     try {
       const token = localStorage.getItem('token')
-      await axios.delete(`${import.meta.env.VITE_API_URL}/api/donneur/reserver/${id}`, {
+      await axios.delete(`${process.env.VUE_APP_API_URL}/api/donneur/reserver/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       Swal.fire('Supprimé !', 'Votre réservation a été annulée.', 'success')
@@ -137,7 +137,7 @@ const handleEdit = async (don) => {
   if (newTime) {
     try {
       const token = localStorage.getItem('token')
-      await axios.put(`${import.meta.env.VITE_API_URL}/api/donneur/reserver/${don.id}`, 
+      await axios.put(`${process.env.VUE_APP_API_URL}/api/donneur/reserver/${don.id}`, 
         { heure_rdv: newTime },
         { headers: { Authorization: `Bearer ${token}` } }
       )

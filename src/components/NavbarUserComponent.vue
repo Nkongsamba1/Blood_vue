@@ -95,7 +95,7 @@ const handleLogout = async () => {
   if (result.isConfirmed) {
     try {
       const token = localStorage.getItem('token');
-      await axios.post(`${import.meta.env.VITE_API_URL}/api/logout`, {}, {
+      await axios.post(`${process.env.VUE_APP_API_URL}/api/logout`, {}, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
     } catch (error) {

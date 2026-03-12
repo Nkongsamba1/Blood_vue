@@ -118,7 +118,7 @@ const messageBienvenue = computed(() => {
 const fetchDashboardData = async () => {
   try {
     const token = localStorage.getItem('token')
-    const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/donneur/dashboard`, {
+    const response = await axios.get(`${process.env.VUE_APP_API_URL}/api/donneur/dashboard`, {
       headers: { Authorization: `Bearer ${token}` }
     })
     utilisateur.value = response.data
@@ -144,7 +144,7 @@ const handlePhotoUpload = async (e) => {
   if (!file) return
   const fd = new FormData(); fd.append('photo', file)
   try {
-    const res = await axios.post('${import.meta.env.VITE_API_URL}/api/donneur/update-photo', fd, {
+    const res = await axios.post('${process.env.VUE_APP_API_URL}/api/donneur/update-photo', fd, {
       headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}`, 'Content-Type': 'multipart/form-data' }
     })
     utilisateur.value.photo = res.data.url

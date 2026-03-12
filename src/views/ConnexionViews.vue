@@ -108,7 +108,7 @@ export default {
       this.loading = true;
       try {
         // Envoi vers ton API Laravel
-        const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/connexion`, this.loginForm);
+        const response = await axios.post(`${process.env.VUE_APP_API_URL}/api/connexion`, this.loginForm);
 
         // 1. Sauvegarde du Token et des infos utilisateur
         const token = response.data.access_token;

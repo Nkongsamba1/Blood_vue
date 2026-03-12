@@ -32,7 +32,7 @@
               <div class="relative z-10">
                 <div class="relative w-32 h-32 lg:w-36 lg:h-36 mx-auto mb-6 cursor-pointer" @click="fileInput.click()">
                   <div class="w-full h-full bg-red-600 rounded-[2rem] lg:rounded-[2.5rem] flex items-center justify-center text-white text-5xl font-black italic shadow-xl border-4 border-white/10 overflow-hidden transition-transform group-hover:scale-95">
-                    <img v-if="user.photo" :src="`${import.meta.env.VITE_API_URL}/storage/${user.photo}`" class="w-full h-full object-cover">
+                    <img v-if="user.photo" :src="`${process.env.VUE_APP_API_URL}/storage/${user.photo}`" class="w-full h-full object-cover">
                     <span v-else>{{ user.nom_complet?.charAt(0) }}</span>
                   </div>
                   <div class="absolute inset-0 bg-black/40 rounded-[2rem] lg:rounded-[2.5rem] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
@@ -127,7 +127,7 @@ const fetchUserProfile = async () => {
   loading.value = true;
   try {
     const token = localStorage.getItem('token');
-    const res = await axios.get('${import.meta.env.VITE_API_URL}/api/user-profile', {
+    const res = await axios.get('${process.env.VUE_APP_API_URL}/api/user-profile', {
       headers: { Authorization: `Bearer ${token}` }
     });
     user.value = res.data;
@@ -143,7 +143,7 @@ const fetchUserProfile = async () => {
 const updateProfile = async () => {
   try {
     const token = localStorage.getItem('token');
-    await axios.put(`${import.meta.env.VITE_API_URL}/api/users/${user.value.utilisateur_id}`, form.value, {
+    await axios.put(`${process.env.VUE_APP_API_URL}/api/users/${user.value.utilisateur_id}`, form.value, {
       headers: { Authorization: `Bearer ${token}` }
     });
     
@@ -169,7 +169,7 @@ const handleImageUpload = async (event) => {
 
   try {
     const token = localStorage.getItem('token');
-    const response = await axios.post('${import.meta.env.VITE_API_URL}/api/admin/profil/photo', formData, {
+    const response = await axios.post('${process.env.VUE_APP_API_URL}/api/admin/profil/photo', formData, {
       headers: { 
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'multipart/form-data' 
@@ -196,7 +196,7 @@ const handleUpdatePassword = async () => {
   }
   try {
     const token = localStorage.getItem('token');
-    await axios.put(`${import.meta.env.VITE_API_URL}/api/admin/password/update`, passwords, {
+    await axios.put(`${process.env.VUE_APP_API_URL}/api/admin/password/update`, passwords, {
       headers: { Authorization: `Bearer ${token}` }
     });
     Swal.fire({ icon: 'success', title: 'Mot de passe modifié', background: '#111', color: '#fff' });

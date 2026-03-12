@@ -152,7 +152,7 @@ const formAptitude = ref({ tension: '', poids: '', est_apte: true });
 const formPrelevement = ref({ num_poche: '', quantite: 450, heure_debut: '' });
 
 const api = axios.create({
-  baseURL: `${import.meta.env.VITE_API_URL}/api`,
+  baseURL: `${process.env.VUE_APP_API_URL}/api`,
   headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
 });
 
