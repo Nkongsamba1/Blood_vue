@@ -123,8 +123,7 @@ export default {
 
       try {
         // Appel Axios vers ton API Laravel
-// Remplace temporairement la ligne 126 par celle-ci :
-const response = await axios.post('https://appealing-encouragement-production.up.railway.app/api/inscription', this.form);
+        const response = await axios.post(`${process.env.VUE_APP_API_URL}/api/inscription`, this.form);
 
         console.log("Succès :", response.data);
         alert("Inscription réussie !");
