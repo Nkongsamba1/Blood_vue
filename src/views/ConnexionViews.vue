@@ -166,7 +166,7 @@ const handleLogin = async () => {
   } finally {
     loading.value = false;
   }
-};
+}
 </script>
 
 <style scoped>
