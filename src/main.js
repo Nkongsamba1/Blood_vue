@@ -6,6 +6,7 @@ import axios from 'axios'
 
 // 1. Configuration de l'instance
 const apiClient = axios.create({
+  // Vérifie bien que la variable s'appelle VUE_APP_API_URL dans Vercel
   baseURL: process.env.VUE_APP_API_URL, 
   withCredentials: true,
   headers: {
@@ -15,14 +16,26 @@ const apiClient = axios.create({
   }
 });
 
+// --- ÉTAPE CRUCIALE : L'INTERCEPTEUR DE TOKEN ---
+apiClient.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+}, (error) => {
+  return Promise.reject(error);
+});
+// ------------------------------------------------
+
 // 2. Création de l'application
 const app = createApp(App)
 
-// 3. Optionnel : rendre l'apiClient disponible partout via this.$http
+// 3. Rendre l'apiClient disponible partout
 app.config.globalProperties.$http = apiClient
 
 app.use(router)
 app.mount('#app')
 
-// On exporte l'apiClient pour pouvoir l'importer dans d'autres fichiers JS/Vue
+// Export pour tes composants (Dashboard, Profil, etc.)
 export { apiClient }
