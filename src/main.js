@@ -8,7 +8,7 @@ import axios from 'axios'
 const apiClient = axios.create({
   // Vérifie bien que la variable s'appelle VUE_APP_API_URL dans Vercel
   baseURL: process.env.VUE_APP_API_URL, 
-  withCredentials: true,
+  withCredentials: false,
   headers: {
     'Accept': 'application/json',
     'Content-Type': 'application/json',

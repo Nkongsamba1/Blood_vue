@@ -120,35 +120,55 @@ const loginForm = reactive({
 const handleLogin = async () => {
   loading.value = true;
   try {
-    // 1. On demande le cookie CSRF (toujours une bonne sécurité)
+    // 1. Initialiser le système de sécurité de Laravel (indispensable en production)
     await apiClient.get('/sanctum/csrf-cookie');
 
-    // 2. On tente la connexion
+    // 2. Envoyer les identifiants
     const response = await apiClient.post('/connexion', loginForm);
 
-    // 3. ATTENTION : Vérifie ici si ton backend envoie 'access_token' ou juste 'token'
-    // On récupère le token et les infos user
+    // 3. EXTRACTION SÉCURISÉE (On vérifie les deux noms possibles : access_token ou token)
     const token = response.data.access_token || response.data.token;
     const user = response.data.user;
 
     if (token) {
-      // 4. On stocke AVANT de rediriger
+      // 4. STOCKAGE IMMÉDIAT
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
 
-      // 5. On attend un tout petit peu (optionnel mais aide parfois le stockage)
-      await nextTick(); 
-
-      // 6. On redirige
+      // 5. REDIRECTION SELON LE RÔLE
       const role = user.role_utilisateur;
-      if (role === 'admin') router.push('/AdminDashboard');
-      else if (role === 'personnel') router.push('/PersonnelDashboard');
-      else router.push('/Dash_user');
       
-      // Toast de succès...
+      if (role === 'admin') {
+        router.push('/AdminDashboard');
+      } else if (role === 'personnel') {
+        router.push('/PersonnelDashboard');
+      } else {
+        router.push('/Dash_user');
+      }
+
+      // Petit toast de succès
+      Swal.fire({
+        icon: 'success',
+        title: `Bienvenue, ${user.nom_complet}`,
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000
+      });
+    } else {
+      throw new Error("Token non reçu du serveur");
     }
+
   } catch (error) {
-    // Gestion erreur...
+    console.error("Erreur de connexion détaillée:", error.response?.data);
+    const message = error.response?.data?.message || "Identifiants invalides.";
+    
+    Swal.fire({
+      icon: 'error',
+      title: 'Erreur d\'accès',
+      text: message,
+      confirmButtonColor: '#A62639'
+    });
   } finally {
     loading.value = false;
   }
