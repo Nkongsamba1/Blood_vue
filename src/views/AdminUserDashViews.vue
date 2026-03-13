@@ -133,7 +133,7 @@ const loading = ref(true);
 const fetchData = async () => {
   loading.value = true;
   try {
-    const res = await axios.get(`${process.env.VUE_APP_API_URL}/api/users`);
+    const res = await axios.get(`http://127.0.0.1:8000/api/users`);
     personnel.value = res.data.personnel;
     donneurs.value = res.data.donneurs;
   } catch (e) {
@@ -145,7 +145,7 @@ const fetchData = async () => {
 
 const updateUserRole = async (user, newRole) => {
   try {
-    await axios.put(`${process.env.VUE_APP_API_URL}/api/users/${user.utilisateur_id}`, {
+    await axios.put(`http://127.0.0.1:8000/api/users/${user.utilisateur_id}`, {
       role_utilisateur: newRole
     });
     
@@ -182,7 +182,7 @@ const deleteUser = async (id) => {
 
   if (result.isConfirmed) {
     try {
-      await axios.delete(`${process.env.VUE_APP_API_URL}/api/users/${id}`);
+      await axios.delete(`http://127.0.0.1:8000/api/users/${id}`);
       Swal.fire({
         title: 'Supprimé !',
         text: 'L\'utilisateur a été retiré.',

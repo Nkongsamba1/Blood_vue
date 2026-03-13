@@ -125,7 +125,7 @@ const config = {
 
 const fetchProfile = async () => {
   try {
-    const res = await axios.get(`${process.env.VUE_APP_API_URL}/api/personnel/me`, config);
+    const res = await axios.get('http://127.0.0.1:8000/api/personnel/me', config);
     user.value = res.data.user;
     stats.value = res.data.stats;
   } catch (e) {
@@ -152,7 +152,7 @@ const saveProfile = async () => {
         if (password.value) formData.append('password', password.value);
         if (selectedFile.value) formData.append('photo', selectedFile.value);
 
-        await axios.post('${process.env.VUE_APP_API_URL}/api/personnel/update-profile', formData, {
+        await axios.post('http://127.0.0.1:8000/api/personnel/update-profile', formData, {
             headers: { 
                 ...config.headers,
                 'Content-Type': 'multipart/form-data'

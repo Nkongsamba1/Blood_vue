@@ -122,7 +122,7 @@ const selectedCampagne = ref(null);
 const fetchCampagnes = async () => {
   loading.value = true;
   try {
-    const response = await axios.get(`${process.env.VUE_APP_API_URL}/api/campagnes`);
+    const response = await axios.get(`http://127.0.0.1:8000/api/campagnes`);
     campagnes.value = response.data;
   } catch (error) {
     console.error("Erreur", error);
@@ -158,7 +158,7 @@ const openEditModal = (c) => {
 
 const updateCampagne = async () => {
   try {
-    await axios.put(`${process.env.VUE_APP_API_URL}/api/campagnes/${selectedCampagne.value.id}`, selectedCampagne.value);
+    await axios.put(`http://127.0.0.1:8000/api/campagnes/${selectedCampagne.value.id}`, selectedCampagne.value);
     showModal.value = false;
     fetchCampagnes();
     Swal.fire({ title: 'Mis à jour !', icon: 'success', toast: true, position: 'top-end', showConfirmButton: false, timer: 2000 });
@@ -178,7 +178,7 @@ const deleteCampagne = async (id) => {
     confirmButtonText: 'Oui, supprimer' 
   });
   if (res.isConfirmed) {
-    await axios.delete(`${process.env.VUE_APP_API_URL}/api/campagnes/${id}`);
+    await axios.delete(`http://127.0.0.1:8000/api/campagnes/${id}`);
     fetchCampagnes();
   }
 };

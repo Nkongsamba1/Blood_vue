@@ -189,7 +189,7 @@ const submitCampagne = async () => {
     const token = localStorage.getItem('token');
     
     // On envoie le formulaire avec les groupes cibles à Laravel
-    const response = await axios.post(`${process.env.VUE_APP_API_URL}/api/campagnes`, form, {
+    const response = await axios.post(`http://127.0.0.1:8000/api/campagnes`, form, {
       headers: { Authorization: `Bearer ${token}` }
     });
 

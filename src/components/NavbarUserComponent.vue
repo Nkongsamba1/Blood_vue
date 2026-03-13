@@ -95,7 +95,7 @@ const handleLogout = async () => {
   if (result.isConfirmed) {
     try {
       const token = localStorage.getItem('token');
-      await axios.post(`${process.env.VUE_APP_API_URL}/api/logout`, {}, {
+      await axios.post(`http://127.0.0.1:8000/api/logout`, {}, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
     } catch (error) {

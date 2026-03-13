@@ -116,12 +116,12 @@ const init = async () => {
     const headers = { Authorization: `Bearer ${token}` }
 
     // 1. Vérification médicale
-    const resElig = await axios.get(`${process.env.VUE_APP_API_URL}/api/donneur/check-eligibilite`, { headers })
+    const resElig = await axios.get('http://127.0.0.1:8000/api/donneur/check-eligibilite', { headers })
     eligibilite.value = resElig.data
 
     // 2. Si éligible, charger les campagnes
     if (eligibilite.value.eligible) {
-      const resCamp = await axios.get(`${process.env.VUE_APP_API_URL}/api/campagnes/disponibles`, { headers })
+      const resCamp = await axios.get('http://127.0.0.1:8000/api/campagnes/disponibles', { headers })
       campagnes.value = resCamp.data
     }
   } catch (err) {
@@ -148,7 +148,7 @@ const handleReserve = async () => {
   if (result.isConfirmed) {
     try {
       const token = localStorage.getItem('token')
-      await axios.post('${process.env.VUE_APP_API_URL}/api/donneur/reserver', {
+      await axios.post('http://127.0.0.1:8000/api/donneur/reserver', {
         campagne_id: selectedCampagne.value.id,
         heure_rdv: form.value.heure,
         date_don: selectedCampagne.value.date_debut
