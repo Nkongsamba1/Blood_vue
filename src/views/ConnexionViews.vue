@@ -120,17 +120,21 @@ const loginForm = reactive({
 const handleLogin = async () => {
   loading.value = true;
   try {
+    // ÉTAPE 1 : Initialiser le cookie CSRF (Crucial pour éviter la 401)
+    // Cette route prépare le terrain pour que Laravel accepte tes cookies
+    await apiClient.get('/sanctum/csrf-cookie');
+
+    // ÉTAPE 2 : Tentative de connexion
     const response = await apiClient.post('/connexion', loginForm);
 
     const { access_token, user } = response.data;
     
-    // Stockage sécurisé
+    // Stockage
     localStorage.setItem('token', access_token);
     localStorage.setItem('user', JSON.stringify(user));
 
-    // Redirection selon MCD
+    // Redirection selon le rôle
     const role = user.role_utilisateur;
-
     if (role === 'admin') {
       router.push('/AdminDashboard');
     } else if (role === 'personnel') {
@@ -139,7 +143,6 @@ const handleLogin = async () => {
       router.push('/Dash_user');
     }
 
-    // Petit toast de succès
     Swal.fire({
       icon: 'success',
       title: `Bienvenue, ${user.nom_complet}`,
@@ -151,15 +154,14 @@ const handleLogin = async () => {
     });
 
   } catch (error) {
-    const message = error.response?.data?.message || "Identifiants invalides.";
+    console.error("Erreur détaillée:", error.response); // Pour t'aider à débugger dans la console
+    const message = error.response?.data?.message || "Identifiants invalides ou problème de session.";
+    
     Swal.fire({
       icon: 'error',
       title: 'Erreur d\'accès',
       text: message,
-      confirmButtonColor: '#A62639',
-      customClass: {
-        popup: 'rounded-[2rem]'
-      }
+      confirmButtonColor: '#A62639'
     });
   } finally {
     loading.value = false;
