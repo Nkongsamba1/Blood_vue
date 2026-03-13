@@ -101,11 +101,13 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { apiClient } from '@/main' // Instance optimisée pour Railway
 import Swal from 'sweetalert2'
 import NavbarUserComponent from '../components/NavbarUserComponent.vue'
 import FooterComponent from '../components/FooterComponent.vue'
 
+const router = useRouter()
 const loading = ref(true)
 const fileInput = ref(null)
 const utilisateur = ref({ nom_complet: '', groupe_sanguin: '?', delai: 0, photo: null })
@@ -127,15 +129,29 @@ const messageBienvenue = computed(() => {
   return `${(h >= 5 && h < 18) ? "Bonjour" : "Bonsoir"}, ${prenom} !`
 })
 
+// --- CORRECTION : Récupération des données avec Token ---
 const fetchDashboardData = async () => {
   try {
-    const response = await apiClient.get('/donneur/dashboard')
+    const token = localStorage.getItem('token');
+    
+    const response = await apiClient.get('/donneur/dashboard', {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+    
     utilisateur.value = response.data
     historique.value = response.data.historique || []
     campagnes.value = response.data.campagnes || []
   } catch (e) {
     console.error("Erreur Dashboard:", e)
-    Swal.fire('Erreur', 'Impossible de charger vos données.', 'error')
+    
+    // Si 401, on redirige vers la connexion
+    if (e.response && e.response.status === 401) {
+      router.push('/Connexion')
+    } else {
+      Swal.fire('Erreur', 'Impossible de charger vos données.', 'error')
+    }
   } finally {
     loading.value = false
   }
@@ -151,16 +167,21 @@ const statutColor = (s) => {
 
 const triggerUpload = () => fileInput.value.click()
 
+// --- CORRECTION : Upload photo avec Token ---
 const handlePhotoUpload = async (e) => {
   const file = e.target.files[0]
   if (!file) return
   
+  const token = localStorage.getItem('token');
   const fd = new FormData()
   fd.append('photo', file)
 
   try {
     const res = await apiClient.post('/donneur/update-photo', fd, {
-      headers: { 'Content-Type': 'multipart/form-data' }
+      headers: { 
+        'Content-Type': 'multipart/form-data',
+        'Authorization': `Bearer ${token}`
+      }
     })
     utilisateur.value.photo = res.data.url
     Swal.fire({ icon: 'success', title: 'Photo mise à jour', showConfirmButton: false, timer: 1500 })
