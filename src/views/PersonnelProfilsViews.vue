@@ -54,14 +54,14 @@
           <div class="bg-white rounded-[2.5rem] p-8 shadow-xl border border-white">
             <h3 class="text-xs font-black uppercase tracking-widest text-slate-400 mb-6 italic">Badge de Sécurité</h3>
             <div class="aspect-square bg-slate-50 rounded-3xl flex items-center justify-center border-2 border-dashed border-slate-200">
-               <div class="text-center p-4">
-                  <div class="w-32 h-32 bg-slate-800 rounded-2xl mx-auto mb-4 flex items-center justify-center p-2">
-                      <div class="grid grid-cols-4 gap-1 w-full h-full">
-                          <div v-for="n in 16" :key="n" :class="Math.random() > 0.5 ? 'bg-white' : 'bg-transparent'" class="rounded-sm"></div>
-                      </div>
-                  </div>
-                  <p class="text-[9px] font-black text-slate-400 uppercase">Scanner pour accès rapide</p>
-               </div>
+                <div class="text-center p-4">
+                   <div class="w-32 h-32 bg-slate-800 rounded-2xl mx-auto mb-4 flex items-center justify-center p-2">
+                       <div class="grid grid-cols-4 gap-1 w-full h-full">
+                           <div v-for="n in 16" :key="n" :class="Math.random() > 0.5 ? 'bg-white' : 'bg-transparent'" class="rounded-sm"></div>
+                       </div>
+                   </div>
+                   <p class="text-[9px] font-black text-slate-400 uppercase">Scanner pour accès rapide</p>
+                </div>
             </div>
           </div>
         </div>
@@ -107,9 +107,9 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import axios from 'axios';
 import { useRouter } from 'vue-router';
-
+// Import de l'apiClient configuré globalement
+import { apiClient } from '@/main'; 
 import NavbarPersonnelComponent from '@/components/NavbarPersonnelComponent.vue';
 
 const router = useRouter();
@@ -119,18 +119,14 @@ const password = ref('');
 const selectedFile = ref(null);
 const loading = ref(false);
 
-const config = {
-    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-};
-
 const fetchProfile = async () => {
   try {
-    const res = await axios.get('http://127.0.0.1:8000/api/personnel/me', config);
+    const res = await apiClient.get('/personnel/me');
     user.value = res.data.user;
     stats.value = res.data.stats;
   } catch (e) {
     console.error("Erreur de chargement", e);
-    // Optionnel: rediriger vers login si 401
+    if(e.response?.status === 401) router.push('/login');
   }
 };
 
@@ -138,7 +134,7 @@ const onFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
         selectedFile.value = file;
-        user.value.photo = URL.createObjectURL(file); // Prévisualisation
+        user.value.photo = URL.createObjectURL(file); // Prévisualisation locale
     }
 };
 
@@ -152,11 +148,8 @@ const saveProfile = async () => {
         if (password.value) formData.append('password', password.value);
         if (selectedFile.value) formData.append('photo', selectedFile.value);
 
-        await axios.post('http://127.0.0.1:8000/api/personnel/update-profile', formData, {
-            headers: { 
-                ...config.headers,
-                'Content-Type': 'multipart/form-data'
-            }
+        await apiClient.post('/personnel/update-profile', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
         });
         
         alert("Profil mis à jour avec succès !");
@@ -169,12 +162,21 @@ const saveProfile = async () => {
     }
 };
 
-const handleLogout = async () => {
+const handleLogout = () => {
     if(confirm("Voulez-vous vous déconnecter ?")) {
         localStorage.removeItem('token');
+        localStorage.removeItem('user');
         router.push('/login');
     }
 };
 
 onMounted(fetchProfile);
 </script>
+
+<style scoped>
+main { animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+</style>

@@ -137,8 +137,9 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import axios from 'axios';
 import Swal from 'sweetalert2';
+// Import de l'apiClient configuré globalement
+import { apiClient } from '@/main'; 
 import FooterPersonnelComponent from '@/components/FooterPersonnelComponent.vue';
 import NavbarPersonnelComponent from '@/components/NavbarPersonnelComponent.vue';
 
@@ -151,15 +152,9 @@ const dateActuelle = new Date().toLocaleDateString('fr-FR', { day: 'numeric', mo
 const formAptitude = ref({ tension: '', poids: '', est_apte: true });
 const formPrelevement = ref({ num_poche: '', quantite: 450, heure_debut: '' });
 
-const api = axios.create({
-  baseURL: `http://127.0.0.1:8000/api`,
-  headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-});
-
 const fetchFileAttente = async () => {
-  // On ne montre le gros loader qu'au premier chargement
   try {
-    const response = await api.get('/personnel/file-attente');
+    const response = await apiClient.get('/personnel/file-attente');
     fileAttente.value = response.data.liste;
     totalAttente.value = response.data.total_attente;
   } catch (error) {
@@ -179,7 +174,7 @@ const selectionnerDonneur = (don) => {
 
 const validerExamen = async (apte) => {
   try {
-    await api.post(`/personnel/valider-aptitude/${selectedDon.value.id}`, { ...formAptitude.value, est_apte: apte });
+    await apiClient.post(`/personnel/valider-aptitude/${selectedDon.value.id}`, { ...formAptitude.value, est_apte: apte });
     Swal.fire({ icon: 'success', title: apte ? 'Apte' : 'Inapte', toast: true, position: 'top-end', showConfirmButton: false, timer: 2000 });
     await fetchFileAttente();
     if (!apte) selectedDon.value = null;
@@ -191,7 +186,7 @@ const validerExamen = async (apte) => {
 
 const finaliserDon = async () => {
   try {
-    await api.post(`/personnel/finaliser-prelevement/${selectedDon.value.id}`, formPrelevement.value);
+    await apiClient.post(`/personnel/finaliser-prelevement/${selectedDon.value.id}`, formPrelevement.value);
     Swal.fire({ icon: 'success', title: 'Poche enregistrée', confirmButtonColor: '#ef4444' });
     selectedDon.value = null;
     fetchFileAttente();
@@ -201,7 +196,7 @@ const finaliserDon = async () => {
 };
 
 onMounted(() => {
-  setTimeout(() => fetchFileAttente(), 600); // Petit délai pour l'effet visuel
+  setTimeout(() => fetchFileAttente(), 600);
 });
 
 const menuItems = [

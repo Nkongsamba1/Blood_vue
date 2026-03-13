@@ -78,8 +78,8 @@
                 <h3 class="text-[10px] font-black uppercase tracking-widest text-gray-300">Sécurité (Mot de passe)</h3>
                 <input v-model="passwords.old_password" type="password" placeholder="ANCIEN MOT DE PASSE" class="input-styled">
                 <div class="flex gap-2">
-                   <input v-model="passwords.new_password" type="password" placeholder="NOUVEAU MOT DE PASSE" class="input-styled">
-                   <button @click="handleUpdatePassword" type="button" class="bg-[#1e293b] text-white px-6 rounded-xl text-[10px] font-black uppercase hover:bg-black transition">Mettre à jour</button>
+                    <input v-model="passwords.new_password" type="password" placeholder="NOUVEAU MOT DE PASSE" class="input-styled">
+                    <button @click="handleUpdatePassword" type="button" class="bg-[#1e293b] text-white px-6 rounded-xl text-[10px] font-black uppercase hover:bg-black transition">Mettre à jour</button>
                 </div>
               </div>
             </form>
@@ -94,7 +94,8 @@
 
 <script setup>
 import { reactive, ref, onMounted } from 'vue';
-import axios from 'axios';
+// Utilisation de l'apiClient configuré pour la prod au lieu d'axios brut
+import { apiClient } from '@/main'; 
 import NavbarUserComponent from '@/components/NavbarUserComponent.vue';
 import FooterComponent from '@/components/FooterComponent.vue';
 
@@ -116,10 +117,8 @@ const passwords = reactive({ old_password: '', new_password: '' });
 // 1. CHARGEMENT DES DONNÉES
 const fetchProfil = async () => {
   try {
-    const token = localStorage.getItem('token');
-    const response = await axios.get('http://127.0.0.1:8000/api/donneur/profil', {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+    // Utilisation de apiClient : le token et l'URL de base sont gérés automatiquement
+    const response = await apiClient.get('/donneur/profil');
     profileData.value = response.data;
     loading.value = false;
   } catch (error) {
@@ -131,10 +130,7 @@ const fetchProfil = async () => {
 // 2. MISE À JOUR DU PROFIL (TEXTE)
 const handleUpdateProfil = async () => {
   try {
-    const token = localStorage.getItem('token');
-    const response = await axios.put('http://127.0.0.1:8000/api/donneur/profil/update', profileData.value, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+    const response = await apiClient.put('/donneur/profil/update', profileData.value);
 
     if (response.data.user) {
       profileData.value = response.data.user;
@@ -163,18 +159,14 @@ const handleImageUpload = async (event) => {
   formData.append('photo', file);
 
   try {
-    const token = localStorage.getItem('token');
-    const response = await axios.post('http://127.0.0.1:8000/api/donneur/profil/photo', formData, {
-      headers: { 
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'multipart/form-data' 
-      }
+    // On précise juste le Content-Type car c'est un envoi de fichier
+    const response = await apiClient.post('/donneur/profil/photo', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
     });
 
     if (response.data.photo_url) {
       profileData.value.photo = response.data.photo_url;
       
-      // Sync avec localStorage pour persistance immédiate
       const storedUser = JSON.parse(localStorage.getItem('user'));
       if (storedUser) {
         storedUser.photo = response.data.photo_url;
@@ -190,10 +182,7 @@ const handleImageUpload = async (event) => {
 // 4. CHANGEMENT MOT DE PASSE
 const handleUpdatePassword = async () => {
   try {
-    const token = localStorage.getItem('token');
-    await axios.put('http://127.0.0.1:8000/api/donneur/password/update', passwords, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+    await apiClient.put('/donneur/password/update', passwords);
     alert("Mot de passe mis à jour !");
     passwords.old_password = '';
     passwords.new_password = '';

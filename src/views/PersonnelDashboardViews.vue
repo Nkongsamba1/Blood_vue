@@ -113,9 +113,10 @@
 
 <script setup>
 import { ref, onMounted, nextTick } from 'vue';
-import axios from 'axios';
 import Chart from 'chart.js/auto';
 import Swal from 'sweetalert2';
+// Utilisation de l'apiClient configuré globalement
+import { apiClient } from '@/main'; 
 import FooterPersonnelComponent from '@/components/FooterPersonnelComponent.vue';
 import NavbarPersonnelComponent from '@/components/NavbarPersonnelComponent.vue';
 
@@ -124,31 +125,24 @@ const mouvements = ref([]);
 const isLoading = ref(true);
 let chartInstance = null;
 
-const api = axios.create({
-  baseURL: `http://127.0.0.1:8000/api`,
-  headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-});
-
 const loadDashboard = async () => {
-  // Optionnel : ne pas remettre isLoading à true lors d'une synchro manuelle
-  // pour éviter de masquer tout l'écran, mais pour le premier montage, il est à true.
   try {
     const [resStats, resMouv, resChart] = await Promise.all([
-      api.get('/personnel/dashboard-stats'),
-      api.get('/personnel/mouvements'),
-      api.get('/personnel/chart-data')
+      apiClient.get('/personnel/dashboard-stats'),
+      apiClient.get('/personnel/mouvements'),
+      apiClient.get('/personnel/chart-data')
     ]);
     
     stats.value = resStats.data;
     mouvements.value = resMouv.data;
 
     await nextTick();
-    if (resChart.data.length > 0) {
+    if (resChart.data && resChart.data.length > 0) {
       initChart(resChart.data);
     }
   } catch (err) {
-    console.error("Erreur", err);
-    Swal.fire({ icon: 'error', title: 'Erreur Serveur', text: 'Vérifiez la connexion API.' });
+    console.error("Erreur Dashboard", err);
+    Swal.fire({ icon: 'error', title: 'Erreur Serveur', text: 'Impossible de charger les statistiques.' });
   } finally {
     isLoading.value = false;
   }
@@ -187,7 +181,6 @@ const initChart = (data) => {
 };
 
 onMounted(() => {
-    // Petit délai pour laisser le temps au loader d'exister visuellement
     setTimeout(() => loadDashboard(), 800);
 });
 
@@ -208,22 +201,9 @@ const menuItems = [
 .mouvement-item { @apply flex items-center justify-between p-4 bg-slate-50/50 rounded-2xl border border-slate-100 transition-all hover:bg-white hover:border-red-200; }
 .group-tag { @apply w-10 h-10 bg-white rounded-xl shadow-sm flex items-center justify-center font-black text-red-600 text-xs border border-slate-100; }
 
-/* Animations */
-.animate-fade-in {
-  animation: fadeIn 0.6s ease-out;
-}
+.animate-fade-in { animation: fadeIn 0.6s ease-out; }
+.animate-slide-up { animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both; }
 
-.animate-slide-up {
-  animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(40px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
 </style>

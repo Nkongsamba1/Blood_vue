@@ -145,9 +145,10 @@
 <script setup>
 import NavbarAdminComponent from '@/components/NavbarAdminComponent.vue';
 import { reactive, ref } from 'vue';
-import axios from 'axios';
 import { useRouter } from 'vue-router';
 import Swal from 'sweetalert2';
+// Utilisation de l'apiClient configuré globalement
+import { apiClient } from '@/main'; 
 
 const router = useRouter();
 const loading = ref(false);
@@ -159,7 +160,7 @@ const form = reactive({
   date_debut: '',
   date_fin: '',
   message: '',
-  groupes_cibles: [], // Stocke les groupes sélectionnés
+  groupes_cibles: [], 
   planning: []
 });
 
@@ -186,17 +187,14 @@ const submitCampagne = async () => {
   loading.value = true;
   try {
     form.planning = daysOfWeek.value.filter(d => d.active);
-    const token = localStorage.getItem('token');
     
-    // On envoie le formulaire avec les groupes cibles à Laravel
-    const response = await axios.post(`http://127.0.0.1:8000/api/campagnes`, form, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+    // Appel via apiClient vers Railway
+    const response = await apiClient.post(`/campagnes`, form);
 
     if (response.status === 201 || response.status === 200) {
       Swal.fire({
         title: '<span class="italic font-black uppercase tracking-tighter">Mission Lancée</span>',
-        text: 'La campagne est active et les donneurs ciblés ont été alertés par mail.',
+        text: 'La campagne est active et les donneurs ciblés ont été alertés.',
         icon: 'success',
         confirmButtonColor: '#dc2626',
         background: '#fff',
@@ -205,8 +203,8 @@ const submitCampagne = async () => {
       router.push('/AdminCampagnes');
     }
   } catch (error) {
-    console.error(error);
-    Swal.fire('Erreur', 'Impossible de publier la campagne. Vérifiez votre connexion.', 'error');
+    console.error("Erreur Publication:", error);
+    Swal.fire('Erreur', 'Impossible de publier la campagne. Vérifiez les données.', 'error');
   } finally {
     loading.value = false;
   }

@@ -1,14 +1,14 @@
 <template>
-  <nav class="bg-[#1e293b] text-white shadow-lg sticky top-0 z-[100]">
+  <nav class="bg-[#1e293b] text-white shadow-lg sticky top-0 z-[100] border-b border-blue-500/10">
     <div class="max-w-[1440px] mx-auto px-6 h-16 flex justify-between items-center">
 
-      <router-link to="/PersonnelMedical" class="flex items-center gap-2 group">
-        <div class="bg-blue-600 text-white w-9 h-9 flex items-center justify-center rounded-lg font-black transition-transform group-hover:rotate-6">
+      <router-link to="/PersonnelDashboard" class="flex items-center gap-2 group">
+        <div class="bg-blue-600 text-white w-9 h-9 flex items-center justify-center rounded-lg font-black transition-all group-hover:rotate-6 group-hover:shadow-[0_0_15px_rgba(37,99,235,0.4)]">
           KG
         </div>
         <div class="flex flex-col">
           <span class="font-black text-lg tracking-tighter uppercase leading-none">Medical</span>
-          <span class="text-[8px] font-bold text-blue-400 uppercase tracking-widest mt-0.5">Espace Personnel</span>
+          <span class="text-[8px] font-bold text-blue-400 uppercase tracking-widest mt-0.5 italic">Espace Clinique</span>
         </div>
       </router-link>
 
@@ -16,26 +16,27 @@
         <router-link to="/PersonnelDashboard" class="nav-item">Tableau de Bord</router-link>
         <router-link to="/PersonnelPlanning" class="nav-item">Planning</router-link>
         <router-link to="/PersonnelStocks" class="nav-item">Stocks Sang</router-link>
-        <router-link to="/PersonnelProfils" class="nav-item">Profils</router-link>
+        <router-link to="/PersonnelProfils" class="nav-item">Donneurs</router-link>
       </div>
 
       <div class="hidden md:flex items-center gap-6">
         <div class="flex flex-col items-end mr-2">
-          <span class="text-[10px] font-black text-white uppercase">{{ userName }}</span>
+          <p class="text-[10px] font-black text-white uppercase">{{ userName }}</p>
+          <p class="text-[8px] font-bold text-blue-500 uppercase tracking-tighter italic">Connecté</p>
         </div>
         
         <button 
           @click="handleLogout"
-          class="bg-blue-600/10 hover:bg-blue-600 text-blue-500 hover:text-white px-5 py-2 rounded-full text-[10px] font-black uppercase transition-all border border-blue-600/20"
+          class="bg-blue-600/10 hover:bg-blue-600 text-blue-500 hover:text-white px-5 py-2 rounded-full text-[10px] font-black uppercase transition-all border border-blue-600/20 active:scale-95"
         >
-          Deconnexion
+          Déconnexion
         </button>
       </div>
 
       <button @click="isMenuOpen = !isMenuOpen" class="md:hidden p-2 focus:outline-none">
         <div class="space-y-1.5">
           <span :class="['block w-6 h-0.5 bg-white transition-all duration-300', isMenuOpen ? 'rotate-45 translate-y-2' : '']"></span>
-          <span :class="['block w-6 h-0.5 bg-white transition-all duration-300', isMenuOpen ? 'opacity-0' : '']"></span>
+          <span :class="['block w-4 h-0.5 bg-blue-500 transition-all duration-300', isMenuOpen ? 'opacity-0' : '']"></span>
           <span :class="['block w-6 h-0.5 bg-white transition-all duration-300', isMenuOpen ? '-rotate-45 -translate-y-2' : '']"></span>
         </div>
       </button>
@@ -43,14 +44,15 @@
 
     <transition name="fade-slide">
       <div v-if="isMenuOpen" class="md:hidden bg-[#1e293b] border-t border-white/10 px-6 py-6 space-y-4 shadow-2xl">
-        <router-link @click="isMenuOpen = false" to="/PersonnelMedical" class="mobile-nav-item">Tableau de Bord</router-link>
-        <router-link @click="isMenuOpen = false" to="/PersonnelStocks" class="mobile-nav-item">Gestion Stocks</router-link>
-        <router-link @click="isMenuOpen = false" to="/PersonnelProfils" class="mobile-nav-item">Profils</router-link>
+        <router-link @click="isMenuOpen = false" to="/PersonnelDashboard" class="mobile-nav-item">Tableau de Bord</router-link>
+        <router-link @click="isMenuOpen = false" to="/PersonnelPlanning" class="mobile-nav-item">Planning des collectes</router-link>
+        <router-link @click="isMenuOpen = false" to="/PersonnelStocks" class="mobile-nav-item">Gestion des Stocks</router-link>
+        <router-link @click="isMenuOpen = false" to="/PersonnelProfils" class="mobile-nav-item">Base Donneurs</router-link>
         
         <div class="pt-4 border-t border-white/5">
           <button 
             @click="handleLogout"
-            class="w-full bg-blue-600 text-white py-4 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-900/20"
+            class="w-full bg-blue-600 text-white py-4 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-900/20 active:scale-95"
           >
             Se Déconnecter
           </button>
@@ -63,40 +65,52 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import axios from 'axios';
+import { apiClient } from '@/main';
+import Swal from 'sweetalert2';
 
 const isMenuOpen = ref(false);
 const router = useRouter();
-const userName = ref('Personnel'); // Nom par défaut
+const userName = ref('Pr. Médical');
 
-// Récupérer le nom de l'utilisateur stocké lors de la connexion
 onMounted(() => {
   const userData = localStorage.getItem('user');
   if (userData) {
-    const user = JSON.parse(userData);
-    userName.value = user.nom_complet || 'Dr. Personnel';
+    try {
+      const user = JSON.parse(userData);
+      userName.value = user.nom_complet || 'Pr. Médical';
+    } catch (e) {
+      console.error("Erreur parsing user data");
+    }
   }
 });
 
 const handleLogout = async () => {
-  if (confirm("Voulez-vous fermer votre session médicale ?")) {
+  const result = await Swal.fire({
+    title: 'Clôturer la session ?',
+    text: "Toutes les modifications non enregistrées seront perdues.",
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#2563eb', // Bleu médical
+    cancelButtonColor: '#334155',
+    confirmButtonText: 'Déconnexion',
+    cancelButtonText: 'Rester',
+    background: '#1e293b',
+    color: '#fff',
+    customClass: {
+      popup: 'rounded-[1.5rem]'
+    }
+  });
+
+  if (result.isConfirmed) {
     try {
-      const token = localStorage.getItem('token');
-      
-      // Appel API pour révoquer le token Sanctum
-      await axios.post(`http://127.0.0.1:8000/api/logout`, {}, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      await apiClient.post('/logout');
     } catch (error) {
-      console.error("Déconnexion serveur échouée :", error);
+      console.error("Déconnexion API échouée :", error);
     } finally {
-      // Nettoyage local obligatoire
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
+      // Nettoyage complet
+      localStorage.clear();
+      delete apiClient.defaults.headers.common['Authorization'];
       
-      // Redirection vers la page de connexion
       router.push('/');
       isMenuOpen.value = false;
     }
@@ -105,10 +119,9 @@ const handleLogout = async () => {
 </script>
 
 <style scoped>
-/* Tes styles restent identiques, ils sont très bien faits ! */
 .nav-item {
   position: relative;
-  @apply opacity-40 transition-all duration-300 hover:opacity-100 py-1;
+  @apply opacity-40 transition-all duration-300 hover:opacity-100 py-1 cursor-pointer;
 }
 
 .router-link-active.nav-item {

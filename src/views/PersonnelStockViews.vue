@@ -120,22 +120,16 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import axios from 'axios';
+// Import de l'apiClient configuré globalement
+import { apiClient } from '@/main'; 
 import NavbarPersonnelComponent from '@/components/NavbarPersonnelComponent.vue';
 import FooterPersonnelComponent from '@/components/FooterPersonnelComponent.vue';
+
 const bloodStocks = ref([]);
 const movements = ref([]);
 const chartData = ref([0, 0, 0, 0, 0, 0, 0]);
 const joursLabels = ref([]);
-const isLoading = ref(true); // État de chargement initialisé à true
-
-const api = axios.create({
-  baseURL:  'http://127.0.0.1:8000/api',
-  headers: { 
-    Authorization: `Bearer ${localStorage.getItem('token')}`,
-    'Accept': 'application/json'
-  }
-});
+const isLoading = ref(true);
 
 const generateJours = () => {
   const days = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
@@ -149,20 +143,21 @@ const generateJours = () => {
 };
 
 const fetchInventoryData = async () => {
-  isLoading.value = true; // On s'assure qu'il est actif au début
+  isLoading.value = true;
   try {
-    // Petit délai artificiel de 500ms pour éviter le flash si la connexion est trop rapide
-    // Supprimer la ligne Promise si tu veux une vitesse maximale
+    // Petit délai pour l'effet visuel de synchronisation
     await new Promise(resolve => setTimeout(resolve, 800));
 
-    const response = await api.get('/personnel/stocks');
+    // Utilisation de l'apiClient (l'URL de base et le token sont déjà inclus)
+    const response = await apiClient.get('/personnel/stocks');
+    
     bloodStocks.value = response.data.stocks;
     movements.value = response.data.recent_moves;
     chartData.value = response.data.chart_data;
   } catch (error) {
     console.error("Erreur de chargement des stocks :", error);
   } finally {
-    isLoading.value = false; // Arrêt du chargement quoi qu'il arrive
+    isLoading.value = false;
   }
 };
 

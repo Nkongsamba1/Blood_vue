@@ -76,20 +76,20 @@
         </div>
 
         <div v-if="campagnes.length === 0" class="col-span-full text-center py-20 bg-white rounded-[3rem] border-4 border-dashed border-gray-100">
-           <p class="text-gray-400 font-bold uppercase tracking-widest text-xs italic">Aucune campagne disponible actuellement</p>
+            <p class="text-gray-400 font-bold uppercase tracking-widest text-xs italic">Aucune campagne disponible actuellement</p>
         </div>
       </div>
     </main>
-      <FooterComponent />
+    <FooterComponent />
   </div>
 </template>
 
 <script setup>
-
 import { ref, onMounted } from 'vue'
-import axios from 'axios'
 import { useRouter } from 'vue-router'
 import Swal from 'sweetalert2'
+// Import de l'instance API configurée pour la production (Vercel/Railway)
+import { apiClient } from '../main' 
 import NavbarUserComponent from '../components/NavbarUserComponent.vue'
 import FooterComponent from '../components/FooterComponent.vue'
 
@@ -112,20 +112,16 @@ const getJoursRestants = (dateFin) => {
 const init = async () => {
   loading.value = true
   try {
-    const token = localStorage.getItem('token')
-    const headers = { Authorization: `Bearer ${token}` }
-
-    // 1. Vérification médicale
-    const resElig = await axios.get('http://127.0.0.1:8000/api/donneur/check-eligibilite', { headers })
+    // Utilisation de apiClient sans l'URL IP locale
+    const resElig = await apiClient.get('/donneur/check-eligibilite')
     eligibilite.value = resElig.data
 
-    // 2. Si éligible, charger les campagnes
     if (eligibilite.value.eligible) {
-      const resCamp = await axios.get('http://127.0.0.1:8000/api/campagnes/disponibles', { headers })
+      const resCamp = await apiClient.get('/campagnes/disponibles')
       campagnes.value = resCamp.data
     }
   } catch (err) {
-    console.error("Erreur", err)
+    console.error("Erreur de chargement", err)
   } finally {
     loading.value = false
   }
@@ -147,12 +143,12 @@ const handleReserve = async () => {
 
   if (result.isConfirmed) {
     try {
-      const token = localStorage.getItem('token')
-      await axios.post('http://127.0.0.1:8000/api/donneur/reserver', {
+      // Utilisation de apiClient pour la réservation
+      await apiClient.post('/donneur/reserver', {
         campagne_id: selectedCampagne.value.id,
         heure_rdv: form.value.heure,
         date_don: selectedCampagne.value.date_debut
-      }, { headers: { Authorization: `Bearer ${token}` } })
+      })
 
       Swal.fire({ icon: 'success', title: 'Réservé !', timer: 2000, showConfirmButton: false })
       router.push('/Historique')

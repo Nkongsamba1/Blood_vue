@@ -5,7 +5,7 @@
 
     <div v-if="loading" class="fixed inset-0 z-[100] bg-[#fafafa] flex flex-col items-center justify-center">
       <div class="relative">
-        <div class="w-24 h-24 border-4 border-slate-200 border-t-red-600 rounded-full animate-spin"></div>
+        <div class="w-24 h-24 border-4 border-slate-200 border-t-[#A62639] rounded-full animate-spin"></div>
         <div class="absolute inset-0 flex items-center justify-center">
           <span class="text-2xl animate-bounce">🔐</span>
         </div>
@@ -20,7 +20,7 @@
       <header class="h-24 lg:h-28 bg-white/80 backdrop-blur-md flex items-center justify-between px-6 lg:px-12 border-b border-slate-100 sticky top-0 z-20">
         <div class="ml-12 lg:ml-0">
           <h2 class="text-xl lg:text-3xl font-black text-slate-900 uppercase italic tracking-tighter leading-none">Gestion d'Équipe</h2>
-          <p class="text-[8px] lg:text-[10px] font-bold text-red-600 uppercase tracking-widest mt-1">Contrôle des accès & annuaire</p>
+          <p class="text-[8px] lg:text-[10px] font-bold text-[#A62639] uppercase tracking-widest mt-1">Contrôle des accès & annuaire</p>
         </div>
         
         <div class="hidden sm:flex bg-slate-50 px-4 py-2 rounded-xl border border-slate-100">
@@ -51,8 +51,8 @@
                     <tr v-for="user in personnel" :key="user.utilisateur_id" class="group hover:bg-slate-50/30 transition-colors">
                       <td class="p-6 lg:p-8">
                         <div class="flex items-center gap-4">
-                          <div class="w-10 h-10 shrink-0 rounded-xl bg-[#111] text-white flex items-center justify-center font-black italic shadow-lg">
-                            {{ user.nom_complet.charAt(0) }}
+                          <div class="w-10 h-10 shrink-0 rounded-xl bg-slate-900 text-white flex items-center justify-center font-black italic shadow-lg">
+                            {{ user.nom_complet ? user.nom_complet.charAt(0) : '?' }}
                           </div>
                           <div class="min-w-0">
                             <p class="text-xs font-black text-slate-900 truncate uppercase italic">{{ user.nom_complet }}</p>
@@ -63,11 +63,12 @@
                       <td class="p-6 lg:p-8">
                         <select 
                           @change="updateUserRole(user, $event.target.value)"
-                          class="bg-slate-100 border-none rounded-lg text-[9px] font-black uppercase tracking-widest px-3 py-2 cursor-pointer focus:ring-2 focus:ring-red-500 outline-none transition-all"
-                          :class="user.role_utilisateur === 'admin' ? 'text-red-600 bg-red-50' : 'text-slate-600'"
+                          class="bg-slate-100 border-none rounded-lg text-[9px] font-black uppercase tracking-widest px-3 py-2 cursor-pointer focus:ring-2 focus:ring-[#A62639] outline-none transition-all"
+                          :class="user.role_utilisateur === 'admin' ? 'text-red-700 bg-red-50' : 'text-slate-600'"
                         >
                           <option value="admin" :selected="user.role_utilisateur === 'admin'">ADMIN</option>
                           <option value="personnel" :selected="user.role_utilisateur === 'personnel'">PERSONNEL</option>
+                          <option value="donneur" :selected="user.role_utilisateur === 'donneur'">DONNEUR</option>
                         </select>
                       </td>
                       <td class="p-6 lg:p-8 text-right">
@@ -85,22 +86,22 @@
           <section class="flex-1 flex flex-col gap-6 animate-slide-up" style="animation-delay: 0.3s">
             <div class="flex items-center justify-between px-4">
               <h3 class="text-[10px] lg:text-xs font-black uppercase tracking-[0.2em] text-slate-400 italic">🩸 Donneurs Inscrits</h3>
-              <span class="bg-red-50 text-red-600 text-[9px] lg:text-[10px] font-black px-3 py-1 rounded-full uppercase">{{ donneurs.length }} Inscrits</span>
+              <span class="bg-red-50 text-[#A62639] text-[9px] lg:text-[10px] font-black px-3 py-1 rounded-full uppercase">{{ donneurs.length }} Inscrits</span>
             </div>
 
             <div class="bg-white rounded-[2.5rem] lg:rounded-[3.5rem] shadow-sm border border-slate-100 overflow-hidden flex-1 overflow-y-auto max-h-[600px] xl:max-h-none custom-scroll">
               <div v-for="donneur in donneurs" :key="donneur.utilisateur_id" 
                    class="p-6 lg:p-8 border-b border-slate-50 hover:bg-red-50/20 transition flex items-center justify-between group">
                 <div class="flex items-center gap-4 min-w-0">
-                  <div class="w-10 h-10 shrink-0 rounded-xl bg-red-50 text-red-600 flex items-center justify-center font-black italic">
-                     {{ donneur.nom_complet.charAt(0) }}
+                  <div class="w-10 h-10 shrink-0 rounded-xl bg-red-50 text-[#A62639] flex items-center justify-center font-black italic">
+                     {{ donneur.nom_complet ? donneur.nom_complet.charAt(0) : '?' }}
                   </div>
                   <div class="min-w-0">
                     <p class="text-xs font-black text-slate-900 uppercase italic truncate">{{ donneur.nom_complet }}</p>
                     <p class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter truncate">{{ donneur.email }}</p>
                   </div>
                 </div>
-                <button @click="promoteToStaff(donneur)" class="hidden group-hover:block bg-[#111] text-white text-[8px] font-black px-4 py-2 rounded-full uppercase tracking-widest hover:bg-red-600 transition-colors shrink-0 shadow-lg">
+                <button @click="promoteToStaff(donneur)" class="hidden group-hover:block bg-slate-900 text-white text-[8px] font-black px-4 py-2 rounded-full uppercase tracking-widest hover:bg-[#A62639] transition-colors shrink-0 shadow-lg">
                   Promouvoir ⚡
                 </button>
               </div>
@@ -120,78 +121,74 @@
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue';
+import { apiClient } from '@/main';
+import Swal from 'sweetalert2';
 import FooterAdminComponent from '@/components/FooterAdminComponent.vue';
 import NavbarAdminComponent from '@/components/NavbarAdminComponent.vue';
-import { ref, onMounted } from 'vue';
-import axios from 'axios';
-import Swal from 'sweetalert2';
 
 const personnel = ref([]);
 const donneurs = ref([]);
 const loading = ref(true);
 
 const fetchData = async () => {
-  loading.value = true;
   try {
-    const res = await axios.get(`http://127.0.0.1:8000/api/users`);
-    personnel.value = res.data.personnel;
-    donneurs.value = res.data.donneurs;
+    const res = await apiClient.get('/users');
+    personnel.value = res.data.personnel || [];
+    donneurs.value = res.data.donneurs || [];
   } catch (e) {
     console.error("Erreur de chargement", e);
+    Swal.fire('Erreur', 'Impossible de récupérer la liste des utilisateurs', 'error');
   } finally {
-    setTimeout(() => { loading.value = false; }, 800);
+    loading.value = false;
   }
 };
 
 const updateUserRole = async (user, newRole) => {
   try {
-    await axios.put(`http://127.0.0.1:8000/api/users/${user.utilisateur_id}`, {
+    await apiClient.put(`/users/${user.utilisateur_id}`, {
       role_utilisateur: newRole
     });
     
     Swal.fire({
       icon: 'success',
-      title: '<span class="italic font-black uppercase text-sm">Accès Modifié</span>',
-      text: `${user.nom_complet} est désormais ${newRole.toUpperCase()}`,
+      title: '<span class="italic font-black uppercase text-sm">Droits mis à jour</span>',
+      text: `${user.nom_complet} est maintenant : ${newRole.toUpperCase()}`,
       toast: true,
       position: 'top-end',
       showConfirmButton: false,
-      timer: 3000,
+      timer: 2500,
       timerProgressBar: true,
-      background: '#111',
+      background: '#1e293b',
       color: '#fff'
     });
 
-    fetchData();
+    fetchData(); // Rafraîchir les listes
   } catch (e) {
-    Swal.fire('Erreur', 'Impossible de modifier le rôle', 'error');
+    Swal.fire('Erreur', 'Modification du rôle impossible', 'error');
   }
 };
 
 const deleteUser = async (id) => {
   const result = await Swal.fire({
-    title: '<span class="italic font-black uppercase">Confirmation</span>',
-    text: "Voulez-vous vraiment supprimer cet utilisateur ?",
+    title: '<span class="italic font-black uppercase">Supprimer ?</span>',
+    text: "Cette action est définitive et révoquera tous les accès.",
     icon: 'warning',
     showCancelButton: true,
-    confirmButtonColor: '#dc2626',
-    cancelButtonColor: '#111',
+    confirmButtonColor: '#A62639',
+    cancelButtonColor: '#1e293b',
     confirmButtonText: 'SUPPRIMER',
-    cancelButtonText: 'ANNULER'
+    cancelButtonText: 'ANNULER',
+    customClass: { popup: 'rounded-[2rem]' }
   });
 
   if (result.isConfirmed) {
     try {
-      await axios.delete(`http://127.0.0.1:8000/api/users/${id}`);
-      Swal.fire({
-        title: 'Supprimé !',
-        text: 'L\'utilisateur a été retiré.',
-        icon: 'success',
-        confirmButtonColor: '#111'
-      });
+      await apiClient.delete(`/users/${id}`);
+      Swal.fire('Supprimé !', 'L\'utilisateur a été retiré du système.', 'success');
       fetchData();
     } catch (e) {
-      Swal.fire('Erreur', 'Une erreur est survenue.', 'error');
+      Swal.fire('Erreur', 'Suppression impossible.', 'error');
     }
   }
 };
@@ -204,36 +201,14 @@ onMounted(fetchData);
 </script>
 
 <style scoped>
-.animate-fade-in {
-  animation: fadeIn 0.5s ease-out both;
-}
+.animate-fade-in { animation: fadeIn 0.5s ease-out both; }
+.animate-slide-up { animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both; }
 
-.animate-slide-up {
-  animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* Scrollbar élégante pour la liste des donneurs */
-.custom-scroll::-webkit-scrollbar {
-  width: 4px;
-}
-.custom-scroll::-webkit-scrollbar-track {
-  background: transparent;
-}
-.custom-scroll::-webkit-scrollbar-thumb {
-  background: #eee;
-  border-radius: 10px;
-}
-.custom-scroll::-webkit-scrollbar-thumb:hover {
-  background: #ddd;
-}
+.custom-scroll::-webkit-scrollbar { width: 4px; }
+.custom-scroll::-webkit-scrollbar-track { background: transparent; }
+.custom-scroll::-webkit-scrollbar-thumb { background: #eee; border-radius: 10px; }
+.custom-scroll::-webkit-scrollbar-thumb:hover { background: #ddd; }
 </style>

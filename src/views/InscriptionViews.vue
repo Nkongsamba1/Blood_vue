@@ -66,8 +66,9 @@
               <input v-model="form.accept_terms" type="checkbox" required class="accent-red-600 mr-1"> J'accepte les termes
             </label>
             
-            <button type="submit" class="block w-40 mx-auto mt-4 bg-[#A62639] p-2 rounded text-xs font-bold uppercase hover:bg-red-700 transition-colors text-white">
-              S'inscrire
+            <button :disabled="loading" type="submit" class="block w-40 mx-auto mt-4 bg-[#A62639] p-2 rounded text-xs font-bold uppercase hover:bg-red-700 transition-colors text-white disabled:opacity-50">
+              <span v-if="!loading">S'inscrire</span>
+              <span v-else>Traitement...</span>
             </button>
 
             <p class="mt-4 text-[10px] uppercase tracking-tighter opacity-70">
@@ -82,7 +83,7 @@
         <img src="/image/sang.jpg" alt="Blood Donation" class="rounded shadow-lg mb-6 w-full h-56 object-cover" />
         <div class="text-[#A62639] font-black uppercase italic text-lg leading-tight">
           <p>Rejoignez notre cause.</p>
-          <p>Sauvez des vies.</p>
+          <p>Sauvez des lives.</p>
           <p class="text-2xl mt-2 font-normal">❤️</p>
         </div>
       </div>
@@ -91,13 +92,15 @@
 </template>
 
 <script>
-import axios from 'axios';
+// Utilisation de l'apiClient global pour Railway
+import { apiClient } from '@/main';
+import Swal from 'sweetalert2';
 
 export default {
   name: 'InscriptionView',
   data() {
     return {
-      // Les données liées aux inputs via v-model
+      loading: false,
       form: {
         nom_complet: '',
         email: '',
@@ -109,30 +112,38 @@ export default {
         telephone: '',
         accept_terms: false
       },
-      // Liste pour générer le select dynamiquement
       groupes: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
     };
   },
   methods: {
     async handleInscription() {
-      // Vérification rapide des mots de passe
+      // 1. Validation mot de passe
       if (this.form.password !== this.form.password_confirmation) {
-        alert("Les mots de passe ne correspondent pas !");
+        Swal.fire('Oups', 'Les mots de passe ne correspondent pas !', 'error');
         return;
       }
 
+      this.loading = true;
       try {
-        // Appel Axios vers ton API Laravel
-        const response = await axios.post(`http://127.0.0.1:8000/api/inscription`, this.form);
+        // 2. Appel via apiClient vers Railway
+        const response = await apiClient.post('/inscription', this.form);
+        console.log(response.data);
 
-        console.log("Succès :", response.data);
-        alert("Inscription réussie !");
+        Swal.fire({
+          title: 'Bienvenue !',
+          text: 'Inscription réussie. Vous pouvez maintenant vous connecter.',
+          icon: 'success',
+          confirmButtonColor: '#A62639'
+        });
         
-        // Redirection vers la connexion
+        // 3. Redirection
         this.$router.push('/Connexion');
       } catch (error) {
-        console.error("Erreur lors de l'envoi :", error.response?.data || error.message);
-        alert("Une erreur est survenue lors de l'inscription.");
+        console.error("Erreur Inscription :", error);
+        const message = error.response?.data?.message || "Une erreur est survenue lors de l'inscription.";
+        Swal.fire('Erreur', message, 'error');
+      } finally {
+        this.loading = false;
       }
     }
   }
