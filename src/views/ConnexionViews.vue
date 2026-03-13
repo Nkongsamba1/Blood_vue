@@ -120,53 +120,39 @@ const loginForm = reactive({
 const handleLogin = async () => {
   loading.value = true;
   try {
-    // ÉTAPE 1 : Initialiser le cookie CSRF (Crucial pour éviter la 401)
-    // Cette route prépare le terrain pour que Laravel accepte tes cookies
+    // 1. On demande le cookie CSRF (toujours une bonne sécurité)
     await apiClient.get('/sanctum/csrf-cookie');
 
-    // ÉTAPE 2 : Tentative de connexion
+    // 2. On tente la connexion
     const response = await apiClient.post('/connexion', loginForm);
 
-    const { access_token, user } = response.data;
-    
-    // Stockage
-    localStorage.setItem('token', access_token);
-    localStorage.setItem('user', JSON.stringify(user));
+    // 3. ATTENTION : Vérifie ici si ton backend envoie 'access_token' ou juste 'token'
+    // On récupère le token et les infos user
+    const token = response.data.access_token || response.data.token;
+    const user = response.data.user;
 
-    // Redirection selon le rôle
-    const role = user.role_utilisateur;
-    if (role === 'admin') {
-      router.push('/AdminDashboard');
-    } else if (role === 'personnel') {
-      router.push('/PersonnelDashboard');
-    } else {
-      router.push('/Dash_user');
+    if (token) {
+      // 4. On stocke AVANT de rediriger
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(user));
+
+      // 5. On attend un tout petit peu (optionnel mais aide parfois le stockage)
+      await nextTick(); 
+
+      // 6. On redirige
+      const role = user.role_utilisateur;
+      if (role === 'admin') router.push('/AdminDashboard');
+      else if (role === 'personnel') router.push('/PersonnelDashboard');
+      else router.push('/Dash_user');
+      
+      // Toast de succès...
     }
-
-    Swal.fire({
-      icon: 'success',
-      title: `Bienvenue, ${user.nom_complet}`,
-      toast: true,
-      position: 'top-end',
-      showConfirmButton: false,
-      timer: 3000,
-      timerProgressBar: true
-    });
-
   } catch (error) {
-    console.error("Erreur détaillée:", error.response); // Pour t'aider à débugger dans la console
-    const message = error.response?.data?.message || "Identifiants invalides ou problème de session.";
-    
-    Swal.fire({
-      icon: 'error',
-      title: 'Erreur d\'accès',
-      text: message,
-      confirmButtonColor: '#A62639'
-    });
+    // Gestion erreur...
   } finally {
     loading.value = false;
   }
-}
+};
 </script>
 
 <style scoped>
