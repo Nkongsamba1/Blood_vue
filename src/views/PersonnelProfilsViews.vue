@@ -2,8 +2,12 @@
   <div class="min-h-screen bg-[#edf2f7] font-sans text-slate-700">
     <NavbarPersonnelComponent />
 
-    <main class="max-w-[1200px] mx-auto p-4 md:p-8" v-if="user.id">
-      
+    <div v-if="isInitialLoading" class="flex flex-col justify-center items-center min-h-[80vh]">
+      <div class="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+      <p class="mt-4 font-black text-blue-600 animate-pulse uppercase tracking-widest text-xs">Synchronisation en cours...</p>
+    </div>
+
+    <main class="max-w-[1200px] mx-auto p-4 md:p-8" v-else>
       <div class="relative mb-32">
         <div class="h-48 w-full bg-gradient-to-r from-blue-600 to-indigo-900 rounded-[3rem] shadow-2xl overflow-hidden relative">
             <div class="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
@@ -25,16 +29,11 @@
           <div class="text-center md:text-left">
             <h2 class="text-3xl font-black text-slate-900 uppercase italic leading-none tracking-tighter">{{ user.name }}</h2>
             <p class="text-blue-600 font-black text-[10px] uppercase tracking-widest mt-1">Personnel Médical • ID #{{ user.id }}</p>
-            <div class="flex gap-2 mt-4">
-              <span class="bg-emerald-50 text-emerald-600 px-3 py-1 rounded-full text-[9px] font-black uppercase italic">● En Service</span>
-              <span class="bg-slate-100 text-slate-500 px-3 py-1 rounded-full text-[9px] font-black uppercase italic">Rang: Senior</span>
-            </div>
           </div>
         </div>
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-12">
-        
         <div class="lg:col-span-4 space-y-6">
           <div class="bg-slate-900 rounded-[3rem] p-8 text-white shadow-2xl">
             <h3 class="text-xs font-black uppercase tracking-widest text-slate-400 mb-8 italic">Performances</h3>
@@ -44,24 +43,7 @@
                   <p class="text-[9px] font-black uppercase text-blue-400 tracking-widest">{{ label.replace('_', ' ') }}</p>
                   <p class="text-3xl font-black italic">{{ val }}</p>
                 </div>
-                <div class="w-12 h-1 bg-white/10 rounded-full mb-2">
-                    <div class="h-full bg-blue-500" :style="{width: '70%'}"></div>
-                </div>
               </div>
-            </div>
-          </div>
-
-          <div class="bg-white rounded-[2.5rem] p-8 shadow-xl border border-white">
-            <h3 class="text-xs font-black uppercase tracking-widest text-slate-400 mb-6 italic">Badge de Sécurité</h3>
-            <div class="aspect-square bg-slate-50 rounded-3xl flex items-center justify-center border-2 border-dashed border-slate-200">
-                <div class="text-center p-4">
-                   <div class="w-32 h-32 bg-slate-800 rounded-2xl mx-auto mb-4 flex items-center justify-center p-2">
-                       <div class="grid grid-cols-4 gap-1 w-full h-full">
-                           <div v-for="n in 16" :key="n" :class="Math.random() > 0.5 ? 'bg-white' : 'bg-transparent'" class="rounded-sm"></div>
-                       </div>
-                   </div>
-                   <p class="text-[9px] font-black text-slate-400 uppercase">Scanner pour accès rapide</p>
-                </div>
             </div>
           </div>
         </div>
@@ -72,20 +54,20 @@
           <form @submit.prevent="saveProfile" class="space-y-8">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div class="space-y-3">
-                <label class="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-4">Nom Complet</label>
-                <input v-model="user.name" type="text" required class="w-full bg-slate-50 border-none rounded-2xl p-5 text-sm font-bold focus:ring-2 focus:ring-blue-500 outline-none">
+                <label class="label-style">Nom Complet</label>
+                <input v-model="user.name" type="text" required class="input-style">
               </div>
               <div class="space-y-3">
-                <label class="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-4">Adresse Email</label>
-                <input v-model="user.email" type="email" required class="w-full bg-slate-50 border-none rounded-2xl p-5 text-sm font-bold focus:ring-2 focus:ring-blue-500 outline-none">
+                <label class="label-style">Adresse Email</label>
+                <input v-model="user.email" type="email" required class="input-style">
               </div>
               <div class="space-y-3">
-                <label class="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-4">Téléphone Pro</label>
-                <input v-model="user.telephone" type="text" class="w-full bg-slate-50 border-none rounded-2xl p-5 text-sm font-bold focus:ring-2 focus:ring-blue-500 outline-none">
+                <label class="label-style">Téléphone Pro</label>
+                <input v-model="user.telephone" type="text" class="input-style">
               </div>
               <div class="space-y-3">
-                <label class="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-4">Nouveau Mot de Passe</label>
-                <input v-model="password" type="password" placeholder="Laisser vide si inchangé" class="w-full bg-slate-50 border-none rounded-2xl p-5 text-sm font-bold focus:ring-2 focus:ring-blue-500 outline-none">
+                <label class="label-style">Nouveau Mot de Passe</label>
+                <input v-model="password" type="password" placeholder="Laisser vide si inchangé" class="input-style">
               </div>
             </div>
 
@@ -97,20 +79,19 @@
             </div>
           </form>
         </div>
-
       </div>
     </main>
     <FooterPersonnelComponent />
-
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-// Import de l'apiClient configuré globalement
+import Swal from 'sweetalert2';
 import { apiClient } from '@/main'; 
 import NavbarPersonnelComponent from '@/components/NavbarPersonnelComponent.vue';
+import FooterPersonnelComponent from '@/components/FooterPersonnelComponent.vue';
 
 const router = useRouter();
 const user = ref({ name: '', email: '', telephone: '', id: null, photo: null });
@@ -118,65 +99,98 @@ const stats = ref({ dons_valides: 0, examens_realises: 0, heures_garde: 0 });
 const password = ref('');
 const selectedFile = ref(null);
 const loading = ref(false);
+const isInitialLoading = ref(true);
 
 const fetchProfile = async () => {
   try {
     const res = await apiClient.get('/personnel/profils');
+    
+    // On peuple les données
     user.value = res.data.user;
     stats.value = res.data.stats;
+
+    // Notification de succès de synchronisation
+    Swal.fire({
+      icon: 'success',
+      title: 'Données synchronisées',
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true,
+      background: '#1e293b',
+      color: '#fff'
+    });
+
   } catch (e) {
     console.error("Erreur de chargement", e);
+    Swal.fire({
+      icon: 'error',
+      title: 'Échec de synchronisation',
+      text: 'Impossible de récupérer vos données depuis la base.',
+      confirmButtonColor: '#2563eb'
+    });
     if(e.response?.status === 401) router.push('/login');
+  } finally {
+    isInitialLoading.value = false;
+  }
+};
+
+const saveProfile = async () => {
+  loading.value = true;
+  try {
+    const formData = new FormData();
+    formData.append('name', user.value.name);
+    formData.append('email', user.value.email);
+    formData.append('telephone', user.value.telephone);
+    if (password.value) formData.append('password', password.value);
+    if (selectedFile.value) formData.append('photo', selectedFile.value);
+
+    await apiClient.post('/personnel/update-profile', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    
+    Swal.fire('Succès', 'Profil mis à jour !', 'success');
+    password.value = '';
+    selectedFile.value = null;
+  } catch (e) {
+    Swal.fire('Erreur', e.response?.data?.message || 'Erreur lors de la mise à jour', 'error');
+  } finally {
+    loading.value = false;
   }
 };
 
 const onFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-        selectedFile.value = file;
-        user.value.photo = URL.createObjectURL(file); // Prévisualisation locale
-    }
-};
-
-const saveProfile = async () => {
-    loading.value = true;
-    try {
-        const formData = new FormData();
-        formData.append('name', user.value.name);
-        formData.append('email', user.value.email);
-        formData.append('telephone', user.value.telephone);
-        if (password.value) formData.append('password', password.value);
-        if (selectedFile.value) formData.append('photo', selectedFile.value);
-
-        await apiClient.post('/personnel/update-profile', formData, {
-            headers: { 'Content-Type': 'multipart/form-data' }
-        });
-        
-        alert("Profil mis à jour avec succès !");
-        password.value = '';
-        selectedFile.value = null;
-    } catch (e) {
-        alert("Erreur: " + (e.response?.data?.message || "Inconnue"));
-    } finally {
-        loading.value = false;
-    }
+  const file = e.target.files[0];
+  if (file) {
+    selectedFile.value = file;
+    user.value.photo = URL.createObjectURL(file);
+  }
 };
 
 const handleLogout = () => {
-    if(confirm("Voulez-vous vous déconnecter ?")) {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        router.push('/login');
+  Swal.fire({
+    title: 'Déconnexion ?',
+    text: "Souhaitez-vous quitter votre session ?",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#3085d6',
+    confirmButtonText: 'Oui, déconnexion'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      localStorage.removeItem('token');
+      router.push('/login');
     }
+  });
 };
 
 onMounted(fetchProfile);
 </script>
 
 <style scoped>
+.label-style { @apply text-[11px] font-black text-slate-400 uppercase tracking-widest ml-4; }
+.input-style { @apply w-full bg-slate-50 border-none rounded-2xl p-5 text-sm font-bold focus:ring-2 focus:ring-blue-500 outline-none transition-all; }
 main { animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+@keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 </style>
