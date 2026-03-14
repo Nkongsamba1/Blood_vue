@@ -114,7 +114,6 @@
 <script setup>
 import { ref, onMounted, nextTick, onUnmounted } from 'vue';
 import Chart from 'chart.js/auto';
-import Swal from 'sweetalert2';
 import { apiClient } from '@/main'; 
 import FooterPersonnelComponent from '@/components/FooterPersonnelComponent.vue';
 import NavbarPersonnelComponent from '@/components/NavbarPersonnelComponent.vue';
@@ -135,18 +134,24 @@ const loadDashboard = async () => {
     stats.value = resStats.data;
     mouvements.value = resMouv.data;
 
-    // CRUCIAL : On désactive le loader AVANT d'initialiser le graphique
-    // pour que le canvas soit présent dans le DOM
+    // 1. On coupe le chargement
     isLoading.value = false;
 
-    // On attend le prochain cycle de rendu de Vue
+    // 2. On attend que Vue injecte le HTML du canvas dans la page
     await nextTick();
-    
-    if (resChart.data && resChart.data.labels && resChart.data.labels.length > 0) {
-        initChart(resChart.data);
-    }
+
+    // 3. PETITE SÉCURITÉ SUPPLÉMENTAIRE : 
+    // On laisse 100ms au navigateur pour "voir" le canvas
+    setTimeout(() => {
+      if (resChart.data && resChart.data.labels && resChart.data.labels.length > 0) {
+          initChart(resChart.data);
+      } else {
+          console.warn("Données reçues mais vides ou mal formées :", resChart.data);
+      }
+    }, 100);
+
   } catch (err) {
-    console.error("Erreur Dashboard", err);
+    console.error("Erreur critique Dashboard:", err);
     isLoading.value = false;
   }
 };
@@ -155,7 +160,7 @@ const initChart = (data) => {
   const ctx = document.getElementById('globalDonationChart');
   
   if (!ctx) {
-      console.warn("Tentative d'initialisation du graphique sans canvas");
+      console.error("ERREUR : Le canvas #globalDonationChart est introuvable dans le DOM !");
       return;
   }
 
@@ -163,42 +168,41 @@ const initChart = (data) => {
     chartInstance.destroy();
   }
 
-  chartInstance = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: data.labels, 
-      datasets: [{
-        label: 'Dons prélevés',
-        data: data.counts, 
-        borderColor: '#ef4444', 
-        backgroundColor: 'rgba(239, 68, 68, 0.1)',
-        fill: true,
-        tension: 0.4,
-        borderWidth: 3,
-        pointRadius: 5,
-        pointBackgroundColor: '#ef4444',
-        pointHoverRadius: 7
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false }
+  try {
+    chartInstance = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: data.labels, 
+        datasets: [{
+          label: 'Dons',
+          data: data.counts, 
+          borderColor: '#ef4444', 
+          backgroundColor: 'rgba(239, 68, 68, 0.1)',
+          fill: true,
+          tension: 0.4,
+          borderWidth: 3,
+          pointRadius: 5,
+          pointBackgroundColor: '#ef4444'
+        }]
       },
-      scales: {
-        y: { 
-          beginAtZero: true,
-          grid: { color: '#f1f5f9' },
-          ticks: { stepSize: 1, font: { size: 10, weight: 'bold' } } 
-        },
-        x: { 
-          grid: { display: false },
-          ticks: { font: { size: 10, weight: 'bold' } } 
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { 
+            beginAtZero: true,
+            grid: { color: '#f1f5f9' },
+            ticks: { stepSize: 1 } 
+          },
+          x: { grid: { display: false } }
         }
       }
-    }
-  });
+    });
+    console.log("Graphique dessiné avec succès !");
+  } catch (chartError) {
+    console.error("Erreur lors de la création de Chart.js:", chartError);
+  }
 };
 
 onMounted(() => {
