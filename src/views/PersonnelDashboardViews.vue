@@ -115,7 +115,6 @@
 import { ref, onMounted, nextTick } from 'vue';
 import Chart from 'chart.js/auto';
 import Swal from 'sweetalert2';
-// Utilisation de l'apiClient configuré globalement
 import { apiClient } from '@/main'; 
 import FooterPersonnelComponent from '@/components/FooterPersonnelComponent.vue';
 import NavbarPersonnelComponent from '@/components/NavbarPersonnelComponent.vue';
@@ -137,7 +136,8 @@ const loadDashboard = async () => {
     mouvements.value = resMouv.data;
 
     await nextTick();
-    if (resChart.data && resChart.data.length > 0) {
+    // Modification ici pour s'adapter au nouveau format {labels: [], counts: []}
+    if (resChart.data && resChart.data.labels && resChart.data.labels.length > 0) {
       initChart(resChart.data);
     }
   } catch (err) {
@@ -156,9 +156,10 @@ const initChart = (data) => {
   chartInstance = new Chart(ctx, {
     type: 'line',
     data: {
-      labels: data.map(d => d.date),
+      labels: data.labels, // Utilise directement les labels envoyés par Laravel
       datasets: [{
-        data: data.map(d => d.count),
+        label: 'Dons prélévés',
+        data: data.counts, // Utilise directement les counts envoyés par Laravel
         borderColor: '#ef4444', 
         tension: 0.4,
         fill: true,
