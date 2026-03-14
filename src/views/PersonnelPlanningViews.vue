@@ -29,7 +29,7 @@
         </div>
 
         <div class="bg-red-600 rounded-[2.5rem] p-8 text-white shadow-2xl relative overflow-hidden group">
-          <p class="text-[10px] font-black uppercase opacity-60 tracking-[0.2em]">En attente d'examen</p>
+          <p class="text-[10px] font-black uppercase opacity-60 tracking-[0.2em]">En attente d'examen d'aujourd'hui</p>
           <h3 class="text-6xl font-black mt-3 italic tracking-tighter">{{ totalAttente }}</h3>
           <div class="absolute -right-6 -bottom-6 text-white/10 text-8xl font-black italic">WAIT</div>
         </div>
