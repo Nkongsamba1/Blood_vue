@@ -138,28 +138,59 @@ const fetchProfile = async () => {
 };
 
 const saveProfile = async () => {
+  // 1. Validation de sécurité pour le mot de passe
   if (password.value && !old_password.value) {
-     return Swal.fire('Attention', "L'ancien mot de passe est requis pour modifier le nouveau.", 'warning');
+    return Swal.fire('Attention', "L'ancien mot de passe est requis pour modifier le nouveau.", 'warning');
   }
-  
+
   loading.value = true;
+  
   try {
     const formData = new FormData();
     formData.append('name', user.value.name);
     formData.append('email', user.value.email);
+    
+    // Ajout des mots de passe si remplis
     if (old_password.value) formData.append('old_password', old_password.value);
     if (password.value) formData.append('password', password.value);
-    if (selectedFile.value) formData.append('photo', selectedFile.value);
-
-    await apiClient.post('/personnel/update-profile', formData);
     
-    Swal.fire('Réussite', 'Profil mis à jour en base de données', 'success');
+    // Ajout de la photo si un nouveau fichier a été choisi
+    if (selectedFile.value) {
+      formData.append('photo', selectedFile.value);
+    }
+
+    // 2. Envoi des données au serveur
+    // On récupère la réponse (res) pour obtenir la nouvelle URL de l'image
+    const res = await apiClient.post('/personnel/update-profile', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    
+    // 3. MISE À JOUR SYNCHRONE DE L'IMAGE
+    // Si le serveur renvoie la nouvelle URL, on l'applique direct au profil
+    if (res.data.photo_url) {
+      user.value.photo = res.data.photo_url;
+    }
+
+    await Swal.fire({
+      icon: 'success',
+      title: 'Profil mis à jour',
+      text: 'Les données et l’image ont été synchronisées avec succès.',
+      timer: 2000,
+      showConfirmButton: false
+    });
+
+    // Nettoyage des champs de mot de passe
     password.value = '';
     old_password.value = '';
     selectedFile.value = null;
-    fetchProfile(); // Rafraîchir
+    
+    // Optionnel : on rafraîchit quand même pour être sûr des stats
+    fetchProfile(); 
+
   } catch (e) {
-    Swal.fire('Erreur', e.response?.data?.message || 'Vérifiez vos informations', 'error');
+    console.error("Erreur sync:", e);
+    const errorMsg = e.response?.data?.message || 'Une erreur est survenue lors de la synchronisation.';
+    Swal.fire('Erreur de base de données', errorMsg, 'error');
   } finally {
     loading.value = false;
   }
