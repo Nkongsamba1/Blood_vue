@@ -16,7 +16,7 @@
         <router-link to="/PersonnelDashboard" class="nav-item">Tableau de Bord</router-link>
         <router-link to="/PersonnelPlanning" class="nav-item">Planning</router-link>
         <router-link to="/PersonnelStocks" class="nav-item">Stocks Sang</router-link>
-        <router-link to="/PersonnelProfils" class="nav-item">Donneurs</router-link>
+        <router-link to="/PersonnelProfils" class="nav-item">Mon Profils</router-link>
       </div>
 
       <div class="hidden md:flex items-center gap-6">
