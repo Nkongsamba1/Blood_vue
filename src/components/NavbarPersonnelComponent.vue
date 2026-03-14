@@ -47,8 +47,8 @@
         <router-link @click="isMenuOpen = false" to="/PersonnelDashboard" class="mobile-nav-item">Tableau de Bord</router-link>
         <router-link @click="isMenuOpen = false" to="/PersonnelPlanning" class="mobile-nav-item">Planning des collectes</router-link>
         <router-link @click="isMenuOpen = false" to="/PersonnelStocks" class="mobile-nav-item">Gestion des Stocks</router-link>
-        <router-link @click="isMenuOpen = false" to="/PersonnelProfils" class="mobile-nav-item">Base Donneurs</router-link>
-        
+        <router-link @click="isMenuOpen = false" to="/PersonnelProfils" class="mobile-nav-item">Mon Profil</router-link>
+
         <div class="pt-4 border-t border-white/5">
           <button 
             @click="handleLogout"
