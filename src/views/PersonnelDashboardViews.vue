@@ -79,7 +79,7 @@
         <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
           <section class="bg-white rounded-[2.5rem] p-8 shadow-sm border border-slate-100 animate-slide-up">
             <h3 class="section-title italic mb-6 text-red-600">Courbe des activités</h3>
-            <div class="h-[300px]">
+            <div class="h-[300px] relative">
               <canvas id="globalDonationChart"></canvas>
             </div>
           </section>
@@ -135,30 +135,30 @@ const loadDashboard = async () => {
     stats.value = resStats.data;
     mouvements.value = resMouv.data;
 
-    // On attend que Vue affiche le canvas avant de dessiner
+    // CRUCIAL : On désactive le loader AVANT d'initialiser le graphique
+    // pour que le canvas soit présent dans le DOM
+    isLoading.value = false;
+
+    // On attend le prochain cycle de rendu de Vue
     await nextTick();
     
-    // Vérification : Laravel envoie { labels: [], counts: [] }
-    if (resChart.data && resChart.data.labels) {
+    if (resChart.data && resChart.data.labels && resChart.data.labels.length > 0) {
         initChart(resChart.data);
     }
   } catch (err) {
     console.error("Erreur Dashboard", err);
-  } finally {
     isLoading.value = false;
   }
 };
 
 const initChart = (data) => {
-  // On récupère l'élément canvas
   const ctx = document.getElementById('globalDonationChart');
   
   if (!ctx) {
-      console.error("Canvas non trouvé dans le DOM");
+      console.warn("Tentative d'initialisation du graphique sans canvas");
       return;
   }
 
-  // Si un graphique existe déjà, on le détruit pour éviter les bugs visuels
   if (chartInstance) {
     chartInstance.destroy();
   }
@@ -166,17 +166,18 @@ const initChart = (data) => {
   chartInstance = new Chart(ctx, {
     type: 'line',
     data: {
-      labels: data.labels, // Axe X : Les dates
+      labels: data.labels, 
       datasets: [{
         label: 'Dons prélevés',
-        data: data.counts, // Axe Y : Les quantités
+        data: data.counts, 
         borderColor: '#ef4444', 
         backgroundColor: 'rgba(239, 68, 68, 0.1)',
         fill: true,
         tension: 0.4,
         borderWidth: 3,
-        pointRadius: 4,
-        pointBackgroundColor: '#ef4444'
+        pointRadius: 5,
+        pointBackgroundColor: '#ef4444',
+        pointHoverRadius: 7
       }]
     },
     options: {
@@ -189,7 +190,7 @@ const initChart = (data) => {
         y: { 
           beginAtZero: true,
           grid: { color: '#f1f5f9' },
-          ticks: { font: { size: 10, weight: 'bold' } } 
+          ticks: { stepSize: 1, font: { size: 10, weight: 'bold' } } 
         },
         x: { 
           grid: { display: false },
@@ -201,11 +202,9 @@ const initChart = (data) => {
 };
 
 onMounted(() => {
-    // Petit délai pour laisser les animations de page se terminer
-    setTimeout(() => loadDashboard(), 500);
+    loadDashboard();
 });
 
-// Nettoyage pour éviter les fuites de mémoire
 onUnmounted(() => {
   if (chartInstance) chartInstance.destroy();
 });
