@@ -37,13 +37,13 @@
             </div>
             
             <h2 class="text-2xl font-black text-gray-900 uppercase mb-2 group-hover:text-red-700 transition-colors">{{ c.titre }}</h2>
-            <p class="text-gray-500 text-[11px] font-bold uppercase flex items-center gap-2 mb-6 text-italic">📍 {{ c.lieu }}</p>
+            <p class="text-gray-500 text-[11px] font-bold uppercase flex items-center gap-2 mb-6 italic">📍 {{ c.lieu }}</p>
             
             <div v-if="selectedCampagne?.id === c.id" class="mt-4 pt-6 border-t border-gray-100 animate-slideUp">
               
               <p class="text-[9px] font-black uppercase text-gray-400 mb-3 tracking-[0.2em] italic">1. Choisissez une date</p>
               <div class="flex flex-wrap gap-2 mb-6">
-                <button v-for="(hoursList, date) in c.planning" :key="date"
+                <button v-for="(hoursList, date) in sortedPlanning(c.planning)" :key="date"
                         @click.stop="!isDatePassed(date) ? (form.date = date, form.heure = '') : null"
                         :disabled="isDatePassed(date)"
                         :class="[
@@ -105,6 +105,20 @@ const campagnes = ref([])
 const selectedCampagne = ref(null)
 const form = ref({ date: '', heure: '' })
 
+/**
+ * Triage du planning par ordre chronologique
+ * (Les objets JS ne garantissent pas l'ordre des clés)
+ */
+const sortedPlanning = (planning) => {
+  if (!planning) return {};
+  return Object.keys(planning)
+    .sort()
+    .reduce((obj, key) => {
+      obj[key] = planning[key];
+      return obj;
+    }, {});
+}
+
 // Vérifie si la date est passée
 const isDatePassed = (dateString) => {
   const today = new Date()
@@ -114,18 +128,16 @@ const isDatePassed = (dateString) => {
   return dateToCompare < today
 }
 
-// Vérifie si l'heure est passée (pour la date d'aujourd'hui uniquement)
+// Vérifie si l'heure est passée (pour aujourd'hui)
 const isHourPassed = (dateString, hourString) => {
   const today = new Date()
   const dateToCompare = new Date(dateString)
   
-  // Si c'est aujourd'hui, on compare l'heure
   if (dateToCompare.toDateString() === today.toDateString()) {
     const [hours, minutes] = hourString.split(':').map(Number)
-    const now = new Date()
     const slotTime = new Date()
     slotTime.setHours(hours, minutes, 0, 0)
-    return slotTime < now
+    return slotTime < today
   }
   return false
 }
@@ -142,14 +154,17 @@ const init = async () => {
     eligibilite.value = resElig.data
 
     if (eligibilite.value.eligible) {
+      // Note: Assure-toi que l'URL correspond à ton API
       const resCamp = await apiClient.get('/campagnes/disponibles')
       campagnes.value = resCamp.data.map(c => ({
         ...c,
+        // Conversion du JSON string en objet si nécessaire
         planning: typeof c.planning === 'string' ? JSON.parse(c.planning) : (c.planning || {})
       }))
     }
   } catch (err) {
     console.error("Erreur API", err)
+    Swal.fire('Erreur', 'Impossible de charger les données.', 'error')
   } finally {
     loading.value = false
   }
@@ -176,12 +191,20 @@ const handleReserve = async () => {
 
   if (result.isConfirmed) {
     try {
+      // Envoi de la date_don et de l'heure au serveur
       await apiClient.post('/donneur/reserver', {
         campagne_id: selectedCampagne.value.id,
         heure_rdv: form.value.heure,
         date_don: form.value.date
       })
-      Swal.fire({ icon: 'success', title: 'Réservé !', timer: 2000, showConfirmButton: false })
+      
+      Swal.fire({ 
+        icon: 'success', 
+        title: 'Réservé !', 
+        text: 'Votre rendez-vous est enregistré.',
+        timer: 2500, 
+        showConfirmButton: false 
+      })
       router.push('/Historique')
     } catch (err) {
       Swal.fire('Erreur', err.response?.data?.message || 'Erreur lors de la réservation', 'error')
@@ -189,7 +212,11 @@ const handleReserve = async () => {
   }
 }
 
-const formatDateShort = (d) => d ? new Date(d).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }).toUpperCase() : ""
+const formatDateShort = (d) => {
+  if (!d) return ""
+  return new Date(d).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }).toUpperCase()
+}
+
 const calculNextDate = (jours) => {
   const d = new Date()
   d.setDate(d.getDate() + (jours || 0))
@@ -204,4 +231,9 @@ onMounted(init)
 .animate-slideUp { animation: slideUp 0.4s ease-out; }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Désactivation visuelle des boutons passés */
+button:disabled {
+  pointer-events: none;
+}
 </style>
