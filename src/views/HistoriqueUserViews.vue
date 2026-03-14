@@ -16,7 +16,7 @@
 
       <div v-else-if="dons.length === 0" class="text-center py-20 bg-white rounded-[2.5rem] shadow-sm border-2 border-dashed border-gray-200">
         <p class="text-gray-400 font-bold uppercase text-xs">Aucune participation trouvée</p>
-        <router-link to="/Campagnes" class="inline-block mt-4 text-[#A62639] font-black uppercase text-[10px] hover:underline">
+        <router-link to="/Reservation" class="inline-block mt-4 text-[#A62639] font-black uppercase text-[10px] hover:underline">
           Découvrir les campagnes →
         </router-link>
       </div>
