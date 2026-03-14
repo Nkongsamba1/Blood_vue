@@ -112,7 +112,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick } from 'vue';
+import { ref, onMounted, nextTick, onUnmounted } from 'vue';
 import Chart from 'chart.js/auto';
 import Swal from 'sweetalert2';
 import { apiClient } from '@/main'; 
@@ -135,35 +135,45 @@ const loadDashboard = async () => {
     stats.value = resStats.data;
     mouvements.value = resMouv.data;
 
+    // On attend que Vue affiche le canvas avant de dessiner
     await nextTick();
-    // Modification ici pour s'adapter au nouveau format {labels: [], counts: []}
-    if (resChart.data && resChart.data.labels && resChart.data.labels.length > 0) {
-      initChart(resChart.data);
+    
+    // Vérification : Laravel envoie { labels: [], counts: [] }
+    if (resChart.data && resChart.data.labels) {
+        initChart(resChart.data);
     }
   } catch (err) {
     console.error("Erreur Dashboard", err);
-    Swal.fire({ icon: 'error', title: 'Erreur Serveur', text: 'Impossible de charger les statistiques.' });
   } finally {
     isLoading.value = false;
   }
 };
 
 const initChart = (data) => {
+  // On récupère l'élément canvas
   const ctx = document.getElementById('globalDonationChart');
-  if (!ctx) return;
-  if (chartInstance) chartInstance.destroy();
+  
+  if (!ctx) {
+      console.error("Canvas non trouvé dans le DOM");
+      return;
+  }
+
+  // Si un graphique existe déjà, on le détruit pour éviter les bugs visuels
+  if (chartInstance) {
+    chartInstance.destroy();
+  }
 
   chartInstance = new Chart(ctx, {
     type: 'line',
     data: {
-      labels: data.labels, // Utilise directement les labels envoyés par Laravel
+      labels: data.labels, // Axe X : Les dates
       datasets: [{
-        label: 'Dons prélévés',
-        data: data.counts, // Utilise directement les counts envoyés par Laravel
+        label: 'Dons prélevés',
+        data: data.counts, // Axe Y : Les quantités
         borderColor: '#ef4444', 
-        tension: 0.4,
+        backgroundColor: 'rgba(239, 68, 68, 0.1)',
         fill: true,
-        backgroundColor: 'rgba(239, 68, 68, 0.05)',
+        tension: 0.4,
         borderWidth: 3,
         pointRadius: 4,
         pointBackgroundColor: '#ef4444'
@@ -172,17 +182,32 @@ const initChart = (data) => {
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
+      plugins: {
+        legend: { display: false }
+      },
       scales: {
-        y: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { font: { size: 10, weight: 'bold' } } },
-        x: { grid: { display: false }, ticks: { font: { size: 10, weight: 'bold' } } }
+        y: { 
+          beginAtZero: true,
+          grid: { color: '#f1f5f9' },
+          ticks: { font: { size: 10, weight: 'bold' } } 
+        },
+        x: { 
+          grid: { display: false },
+          ticks: { font: { size: 10, weight: 'bold' } } 
+        }
       }
     }
   });
 };
 
 onMounted(() => {
-    setTimeout(() => loadDashboard(), 800);
+    // Petit délai pour laisser les animations de page se terminer
+    setTimeout(() => loadDashboard(), 500);
+});
+
+// Nettoyage pour éviter les fuites de mémoire
+onUnmounted(() => {
+  if (chartInstance) chartInstance.destroy();
 });
 
 const menuItems = [
