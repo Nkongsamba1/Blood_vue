@@ -29,7 +29,7 @@
       </div>
 
       <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-8 animate-fadeIn">
-        <div v-for="c in campagnes" :key="c.id" 
+    <div v-for="c in campagnes" :key="c.id" 
              @click="selectedCampagne = c"
              :class="selectedCampagne?.id === c.id ? 'border-red-600 ring-4 ring-red-50 shadow-2xl scale-[1.02]' : 'border-gray-100'"
              class="bg-white rounded-[2.5rem] p-8 border-2 cursor-pointer transition-all duration-500 hover:border-red-200 relative group overflow-hidden">
@@ -53,11 +53,11 @@
             
             <div v-if="selectedCampagne?.id === c.id" class="mt-4 pt-6 border-t border-gray-100 animate-slideUp">
               <p class="text-[9px] font-black uppercase text-gray-400 mb-4 tracking-[0.2em] text-center italic">Sélectionnez votre créneau</p>
-              <div class="grid grid-cols-3 gap-2 mb-8">
+              <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-3 gap-2 mb-6">
                 <button v-for="h in hours" :key="h" 
                         @click.stop="form.heure = h"
                         :class="form.heure === h ? 'bg-red-600 text-white shadow-lg' : 'bg-gray-50 text-gray-400'"
-                        class="py-3 rounded-2xl text-[10px] font-black transition-all hover:bg-gray-100">
+                        class="py-3 rounded-2xl text-[10px] font-black transition-all hover:bg-gray-100 w-full">
                   {{ h }}
                 </button>
               </div>

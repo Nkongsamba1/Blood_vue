@@ -204,8 +204,25 @@ onMounted(fetchCampagnes);
 
 <style scoped>
 .custom-modal-input {
-  @apply w-full bg-slate-50 border-none rounded-2xl px-6 py-4 text-sm font-bold italic focus:ring-2 ring-[#A62639] transition-all outline-none;
+  width: 100%;
+  background-color: #f1f5f9; /* bg-slate-50 */
+  border: none;
+  border-radius: 1rem; /* rounded-2xl */
+  padding-left: 1.5rem; /* px-6 */
+  padding-right: 1.5rem;
+  padding-top: 1rem; /* py-4 */
+  padding-bottom: 1rem;
+  font-size: 0.875rem; /* text-sm */
+  font-weight: 700; /* font-bold */
+  font-style: italic;
+  outline: none;
+  transition: all 0.2s ease;
 }
+
+.custom-modal-input:focus {
+  box-shadow: 0 0 0 4px rgba(166,38,57,0.08); /* focus:ring-2 ring-[#A62639] */
+}
+
 
 .fade-enter-active, .fade-leave-active { transition: opacity 0.3s ease; }
 .fade-enter-from, .fade-leave-to { opacity: 0; }

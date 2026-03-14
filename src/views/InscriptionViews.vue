@@ -16,49 +16,49 @@
         </div>
 
         <form @submit.prevent="handleInscription" class="space-y-3">
-          <div class="flex items-center gap-2">
-            <label class="w-28 text-right text-[10px] uppercase">Nom Complet</label>
-            <input v-model="form.nom_complet" type="text" required class="flex-1 h-8 p-2 rounded bg-white text-black outline-none" />
+          <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+            <label class="w-full sm:w-28 text-left sm:text-right text-[10px] uppercase">Nom Complet</label>
+            <input v-model="form.nom_complet" type="text" required class="flex-1 h-9 p-2 rounded bg-white text-black outline-none" />
           </div>
 
-          <div class="flex items-center gap-2">
-            <label class="w-28 text-right text-[10px] uppercase">Adresse E-mail</label>
-            <input v-model="form.email" type="email" required class="flex-1 h-8 p-2 rounded bg-white text-black outline-none" />
+          <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+            <label class="w-full sm:w-28 text-left sm:text-right text-[10px] uppercase">Adresse E-mail</label>
+            <input v-model="form.email" type="email" required class="flex-1 h-9 p-2 rounded bg-white text-black outline-none" />
           </div>
 
-          <div class="flex items-center gap-2">
-            <label class="w-28 text-right text-[10px] uppercase">Sécurité</label>
-            <div class="flex-1 flex gap-2">
-              <input v-model="form.password" type="password" placeholder="Pass" required class="w-1/2 h-8 p-2 rounded bg-white text-black outline-none placeholder:text-[10px]" />
-              <input v-model="form.password_confirmation" type="password" placeholder="Confirm" required class="w-1/2 h-8 p-2 rounded bg-white text-black outline-none placeholder:text-[10px]" />
+          <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+            <label class="w-full sm:w-28 text-left sm:text-right text-[10px] uppercase">Sécurité</label>
+            <div class="flex-1 flex flex-col sm:flex-row gap-2 w-full">
+              <input v-model="form.password" type="password" placeholder="Pass" required class="w-full sm:w-1/2 h-9 p-2 rounded bg-white text-black outline-none placeholder:text-[10px]" />
+              <input v-model="form.password_confirmation" type="password" placeholder="Confirm" required class="w-full sm:w-1/2 h-9 p-2 rounded bg-white text-black outline-none placeholder:text-[10px]" />
             </div>
           </div>
 
-          <div class="flex items-center gap-2 relative">
-            <label class="w-28 text-right text-[10px] uppercase">Genre</label>
-            <select v-model="form.genre" class="flex-1 h-8 px-2 py-1 rounded bg-white text-black outline-none appearance-none cursor-pointer">
+          <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 relative">
+            <label class="w-full sm:w-28 text-left sm:text-right text-[10px] uppercase">Genre</label>
+            <select v-model="form.genre" class="flex-1 h-9 px-2 py-1 rounded bg-white text-black outline-none appearance-none cursor-pointer">
               <option value="Masculin">Masculin</option>
               <option value="Féminin">Féminin</option>
             </select>
-            <span class="absolute right-2 top-2 text-[10px] pointer-events-none text-gray-400">></span>
+            <span class="absolute right-2 top-2 text-[10px] pointer-events-none text-gray-400">&gt;</span>
           </div>
 
-          <div class="flex items-center gap-2 relative">
-            <label class="w-28 text-right text-[10px] uppercase">Gr. Sanguin</label>
-            <select v-model="form.groupe_sanguin" class="flex-1 h-8 py-1 px-2 rounded bg-white text-black outline-none appearance-none cursor-pointer">
+          <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 relative">
+            <label class="w-full sm:w-28 text-left sm:text-right text-[10px] uppercase">Gr. Sanguin</label>
+            <select v-model="form.groupe_sanguin" class="flex-1 h-9 py-1 px-2 rounded bg-white text-black outline-none appearance-none cursor-pointer">
               <option v-for="groupe in groupes" :key="groupe" :value="groupe">{{ groupe }}</option>
             </select>
-            <span class="absolute right-2 top-2 text-[10px] pointer-events-none text-gray-400">></span>
+            <span class="absolute right-2 top-2 text-[10px] pointer-events-none text-gray-400">&gt;</span>
           </div>
 
-          <div class="flex items-center gap-2">
-            <label class="w-28 text-right text-[10px] uppercase">Naissance</label>
-            <input v-model="form.date_naissance" type="date" required class="flex-1 h-8 p-2 rounded bg-white text-black outline-none" />
+          <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+            <label class="w-full sm:w-28 text-left sm:text-right text-[10px] uppercase">Naissance</label>
+            <input v-model="form.date_naissance" type="date" required class="flex-1 h-9 p-2 rounded bg-white text-black outline-none" />
           </div>
 
-          <div class="flex items-center gap-2">
-            <label class="w-28 text-right text-[10px] uppercase">Téléphone</label>
-            <input v-model="form.telephone" type="tel" required class="flex-1 h-8 p-2 rounded bg-white text-black outline-none" />
+          <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+            <label class="w-full sm:w-28 text-left sm:text-right text-[10px] uppercase">Téléphone</label>
+            <input v-model="form.telephone" type="tel" required class="flex-1 h-9 p-2 rounded bg-white text-black outline-none" />
           </div>
 
           <div class="text-center pt-2">

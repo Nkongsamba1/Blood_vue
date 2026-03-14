@@ -29,9 +29,6 @@
             <p class="text-red-100 text-2xl font-black uppercase tracking-[0.3em] mb-1">
                {{ messageBienvenue }}
             </p>
-            <h1 class="text-xl md:text-3xl font-black uppercase tracking-tighter mb-1">
-              {{ utilisateur.nom_complet }}
-            </h1>
             <p class="text-red-200 text-xs italic mb-4 opacity-80">Votre sang sauve des vies au quotidien.</p>
             
             <div class="flex flex-wrap justify-center md:justify-start gap-3">
@@ -51,7 +48,7 @@
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
           
-          <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 flex flex-col h-[380px]">
+          <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 flex flex-col min-h-[220px] md:h-[380px]">
             <p class="text-[10px] font-black uppercase mb-4 tracking-widest text-gray-400">Mon Historique</p>
             <div class="flex-1 overflow-y-auto pr-2 space-y-3 custom-scrollbar">
               <div v-for="don in historique" :key="don.id" class="p-3 rounded-2xl bg-gray-50 border border-gray-100 flex justify-between items-center transition-all hover:translate-x-1">
@@ -69,13 +66,13 @@
             </div>
           </div>
 
-          <div class="bg-amber-400 p-8 rounded-[2rem] shadow-sm text-amber-950 flex flex-col justify-center text-center relative overflow-hidden group">
+          <div class="bg-amber-400 p-6 md:p-8 rounded-[2rem] shadow-sm text-amber-950 flex flex-col justify-center text-center relative overflow-hidden group">
             <div class="absolute top-0 right-0 p-4 opacity-10 text-6xl group-hover:scale-110 transition-transform">💡</div>
             <p class="text-[10px] font-black uppercase mb-2 tracking-widest opacity-60 italic text-amber-800">Conseil du Jour</p>
             <p class="text-lg font-black italic leading-snug relative z-10">"{{ astuceDuJour }}"</p>
           </div>
 
-          <div class="bg-slate-900 p-6 rounded-[2rem] shadow-xl text-white flex flex-col h-[380px]">
+          <div class="bg-slate-900 p-6 rounded-[2rem] shadow-xl text-white flex flex-col min-h-[220px] md:h-[380px]">
             <p class="text-[10px] font-black uppercase mb-4 tracking-widest text-red-500">Campagnes Actives</p>
             <div class="flex-1 overflow-y-auto pr-2 space-y-3 custom-scrollbar">
               <div v-for="camp in campagnes" :key="camp.id" class="p-4 rounded-2xl bg-white/5 border border-white/5 border-l-2 border-l-red-600 hover:bg-white/10 transition-all cursor-pointer">

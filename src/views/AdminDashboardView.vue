@@ -74,7 +74,7 @@
             </div>
           </div>
 
-          <div class="flex items-end justify-between h-64 px-4 border-b border-slate-100 pb-4 overflow-x-auto min-w-[600px]">
+          <div class="flex items-end justify-between h-64 px-4 border-b border-slate-100 pb-4 overflow-x-auto min-w-0">
             <div v-for="s in stockDetails" :key="s.groupe_sanguin" class="flex flex-col items-center gap-4 group relative flex-1 max-w-[80px]">
               
               <span class="absolute -top-10 text-[9px] font-bold bg-slate-900 text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-all transform group-hover:-translate-y-1">
