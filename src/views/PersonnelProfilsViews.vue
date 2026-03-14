@@ -121,7 +121,7 @@ const loading = ref(false);
 
 const fetchProfile = async () => {
   try {
-    const res = await apiClient.get('/personnel/me');
+    const res = await apiClient.get('/personnel/profils');
     user.value = res.data.user;
     stats.value = res.data.stats;
   } catch (e) {
