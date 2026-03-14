@@ -121,7 +121,7 @@ const handleLogin = async () => {
   loading.value = true;
   try {
     // 1. Initialiser le système de sécurité de Laravel (indispensable en production)
-    await apiClient.get('/sanctum/csrf-cookie');
+    // await apiClient.get('/sanctum/csrf-cookie');
 
     // 2. Envoyer les identifiants
     const response = await apiClient.post('/connexion', loginForm);
